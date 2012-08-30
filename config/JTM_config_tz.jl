@@ -10,7 +10,9 @@ module JTM_config_tz
 export _tzname_to_tznum, _tznum_to_filepath, 
        my_tz_stdname_file, my_tz_preloads_file,
        tz_basic_fname, tz_vects_fname,
-       TimezoneBasic, TimezoneVects, _tz_basic, _tz_vects
+       TimezoneBasic, TimezoneVects, _tz_basic, _tz_vects,
+       tznum_to_tz_basic_fname, tznum_to_tz_vects_fname,
+       tznum_to_tz_basic_file, tznum_to_tz_vects_file
 
 import Base.*
 import Main.jtm_cfgfile
@@ -71,6 +73,31 @@ end
 _tz_basic = fill(TimezoneBasic(),511)
 _tz_vects = fill(TimezoneVects(),511)
 
+
+function tznum_to_tz_basic_fname(tznum::Integer)
+  strcat(_tznum_to_filepath[tznum], tz_basic_fname)
+end
+
+function tznum_to_tz_basic_file(tznum::Integer)
+  try
+     open( tznum_to_tz_basic_fname(tznum), "r" )
+  catch e
+     error("Cannot open $(tznum_to_tz_basic_fname(tznum)):  $(e)")
+  end
+end
+
+
+function tznum_to_tz_vects_fname(tznum::Integer)
+  strcat(_tznum_to_filepath[tznum], tz_vects_fname)
+end
+
+function tznum_to_tz_vects_file(tznum::Integer)
+  try
+     open( tznum_to_tz_vects_fname(tznum), "r" )
+  catch e
+     error("Cannot open $(tznum_to_tz_vects_fname(tznum)):  $(e)")
+  end
+end
 
 
 end # module

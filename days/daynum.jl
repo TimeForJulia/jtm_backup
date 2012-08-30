@@ -11,7 +11,11 @@
 
 module daynum
 
-export daynumber, daynumber2ymd
+export daynumber, daynumber2ymd,
+       _NIX_day0, _NIX_day0sec,
+       _TAI_day0, _TAI_day0sec,
+       _MJD_day0, _MJD_day0sec
+
 
 import Base.*
 
@@ -95,6 +99,7 @@ function daynumber(y::Int, m::Int, d::Int)
   end
 end
 
+
 # this is a date-shifted version of the reference code
 # the only change is the addtion of the first line
 #
@@ -131,6 +136,11 @@ end
 const _MJD_day0 = daynumber(1858, 11, 17)
 const _TAI_day0 = daynumber(1958,  1,  1)
 const _NIX_day0 = daynumber(1970,  1,  1)
+
+const _MJD_day0sec = daynumber(1858, 11, 17) * 86400
+const _TAI_day0sec = daynumber(1958,  1,  1) * 86400
+const _NIX_day0sec = daynumber(1970,  1,  1) * 86400
+
 
 daynumber2mjday(daynum::Integer)  =  daynum - _MJD_day0
 mjday2daynumber(mjday::Integer)   =  mjday + _MJD_day0
