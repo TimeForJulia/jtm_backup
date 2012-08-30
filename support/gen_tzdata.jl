@@ -10,6 +10,11 @@ import JTM_config_etc.*
 require("tm4julia/days/daynum.jl")
 import daynum.*
 
+# for timezone data
+start_year = 1799
+end_year   = 2031
+
+
 const _tai_minus_utc_1972_2012_daynum = [
     daynumber( 1972, 1, 1 ), # 1
     daynumber( 1972, 7, 1 ),
@@ -919,7 +924,7 @@ for tzname in keys(_tzname_to_tznum)
   isitdst  = int64([0,0,0]);
   
   try
-    tzvalues = zdump2secs(tzname,1820,2020);
+    tzvalues = zdump2secs(tzname,start_year,end_year);
     gmtsecs  = int64(tzvalues[:,1]);
     gmt2lcl  = int64(tzvalues[:,2]);
     isitdst  = int64(tzvalues[:,3]);
