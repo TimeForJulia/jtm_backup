@@ -7,9 +7,18 @@
 # created: 2012-Jun-21 in New York, USA
 # revised: 2012-Aug-10
 
+module daysInMonth
+
+export daysInMonthJulian, daysInPriorMonthJulian, daysInNextMonthJulian,
+       daysInMonthGregorian, daysInPriorMonthGregorian, daysInNextMonthGregorian,
+       daysInMonthCommon, daysInPriorMonthCommon, daysInNextMonthCommon
+
+
+import Base.*
 
 import Main.jtm_srcfile
 require(jtm_srcfile("days/leapyear.jl"))
+import leapyear.*
 
 
 function daysInMonthJulian(yr::Int, mo::Int)
@@ -27,6 +36,12 @@ end
 function daysInMonthCommon(yr::Int, mo::Int)
   ans  = [31,28,31,30,31,30,31,31,30,31,30,31][mo]
   ans += ((mo == 2) && (isLeapYearCommon(yr)))
+  ans
+end
+
+function daysInMonthCommon(yr::Int, mo::Int, firstGregorianYear::Int)
+  ans  = [31,28,31,30,31,30,31,31,30,31,30,31][mo]
+  ans += ((mo == 2) && (isLeapYearCommon(yr, firstGregorianYear)))
   ans
 end
 
@@ -49,6 +64,12 @@ function daysInPriorMonthCommon(yr::Int, mo::Int)
   ans
 end
 
+function daysInPriorMonthCommon(yr::Int, mo::Int, firstGregorianYear::Int)
+  ans  = [31,31,28,31,30,31,30,31,31,30,31,30][mo]
+  ans += ((mo == 3) && (isLeapYearCommon(yr, firstGregorianYear)))
+  ans
+end
+
 
 function daysInNextMonthJulian(yr::Int, mo::Int)
   ans  = [28,31,30,31,30,31,31,30,31,30,31,31][mo]
@@ -68,7 +89,12 @@ function daysInNextMonthCommon(yr::Int, mo::Int)
   ans
 end
 
+function daysInNextMonthCommon(yr::Int, mo::Int, firstGregorianYear::Int)
+  ans  = [28,31,30,31,30,31,31,30,31,30,31,31][mo]
+  ans += ((mo == 1) && (isLeapYearCommon(yr,firstGregorianYear)))
+  ans
+end
 
-daysInMonth      = daysInMonthCommon
-daysInPriorMonth = daysInPriorMonthCommon
-daysInNextMonth  = daysInNextMonthCommon
+
+end # module
+

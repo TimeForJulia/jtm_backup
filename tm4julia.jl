@@ -25,9 +25,10 @@
 
 # provide full directory paths for accessing facility files
 #
-TM4JULIA_HOME = strcat(JULIA_HOME[1:(end-7)],"jtm")
+TM4JULIA_HOME = strcat(JULIA_HOME[1:(end-7)],"extras/tm4julia")
+
 if (stat( "$(TM4JULIA_HOME)/tm4julia.jl" ).mode==0)
-    TM4JULIA_HOME = strcat(readchomp(`pwd`),"/lib/julia/jtm")
+    TM4JULIA_HOME = strcat(readchomp(`pwd`),"/lib/julia/extras/tm4julia")
     if (stat( "$(TM4JULIA_HOME)/tm4julia.jl" ).mode==0)
        error("Cannot find file \"tm4julia.jl\".")
     end
@@ -90,10 +91,12 @@ end
 require(jtm_srcfile("days/daynum.jl"))
 import daynum.*
 require(jtm_srcfile("days/leapyear.jl"))
-#import JTM_leapyear.*
+import leapyear.*
 require(jtm_srcfile("days/daysInMonth.jl")) # uses leapyear
-#import JTM_daysInMonth.*
+import daysInMonth.*
 require(jtm_srcfile("times/cume_leapsecs.jl"))
 import cume_leapsecs.*
 
+require(jtm_srcfile("io/JTM_date_in.jl"))
+import JTM_date_in.*
 

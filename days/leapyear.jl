@@ -9,6 +9,11 @@
 #
 # offers : isLeapYearJulian, isLeapYearGregorian, isLeapYearCommon
 
+module leapyear
+
+export isLeapYearJulian, isLeapYearGregorian, isLeapYearCommon
+
+import Base.*
 
 # These tests work for positive and negative years
 #  (isLeapYearGregorian(-abs(y)) == isLeapYearGregorian(y))
@@ -28,3 +33,15 @@ function isLeapYearCommon(year::Integer) # year of date
      false
   end       
 end
+
+function isLeapYearCommon(year::Integer, firstGregorianYear::Integer)
+  if ((y % 4) == 0)
+     (year < firstGregorianYear) || (((y % 100) != 0) | ((y % 400) == 0))
+  else   
+     false
+  end       
+end
+
+
+end # module
+
