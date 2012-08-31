@@ -698,13 +698,13 @@ _tzname_to_tznum = Dict{ASCIIString,Int64}(1080)
 tznum_offset = 8 # 1-based indexing, room for specials: "UTC" "GMT"
 # add specials with numbers < 8
 _tzname_to_tznum["LCL"] = 0 # Local Timezone
-_tzname_to_tznum["TT"]  = 1 # Astronomical (Terrestrial Time)
-_tzname_to_tznum["TDB"] = 2 # Barycentric Time (Heliocentric)
-_tzname_to_tznum["TAI"] = 3
-_tzname_to_tznum["GPS"] = 4
-_tzname_to_tznum["UTC"] = 5
-_tzname_to_tznum["UT1"] = 6
-_tzname_to_tznum["UT"]  = 7
+_tzname_to_tznum["TDB"] = 1 # Barycentric Dynamical Time
+_tzname_to_tznum["TDT"] = 2 # Terrestrial Dynamical Time
+_tzname_to_tznum["TAI"] = 3 # International Atomic Time 
+_tzname_to_tznum["UT1"] = 4 # Mean Solar Time corrected for Polar Motion
+_tzname_to_tznum["UTC"] = 5 # Coordinated Universal Time
+_tzname_to_tznum["GMT"] = 6 # UT ignoring leapsecs
+_tzname_to_tznum["GPS"] = 7 # Global Positioning System Time
 
 # fill in iana timezone names mapped to iana+offset nums
 for (k,v) in iana_tzname_to_tzenum
@@ -721,13 +721,13 @@ _tznum_to_abbroffset = Dict{Int64, ((ASCIIString,Int64),(ASCIIString,Int64))}(51
 # make entries for specials
 # !!FIXME!! LCL
 _tznum_to_abbroffset[0] = (("LCL",0),("LCL",0)) 
-_tznum_to_abbroffset[1] = (("TT",0),("TT",0))
-_tznum_to_abbroffset[2] = (("TDB",0),("TDB",0))
+_tznum_to_abbroffset[1] = (("TDB",0),("TDB",0))
+_tznum_to_abbroffset[2] = (("TDT",0),("TDT",0))
 _tznum_to_abbroffset[3] = (("TAI",0),("TAI",0))
-_tznum_to_abbroffset[4] = (("GPS",0),("GPS",0))
+_tznum_to_abbroffset[4] = (("UT1",0),("UT1",0))
 _tznum_to_abbroffset[5] = (("UTC",0),("UTC",0))
-_tznum_to_abbroffset[6] = (("UT1",0),("UT1",0))
-_tznum_to_abbroffset[7] = (("UT",0),("UT",0))
+_tznum_to_abbroffset[6] = (("GMT",0),("GMT",0))
+_tznum_to_abbroffset[7] = (("GPS",0),("GPS",0))
 
 for (k,v) in iana_tzname_to_abbroffset
     _tznum_to_abbroffset[ _tzname_to_tznum[k] ] = v
