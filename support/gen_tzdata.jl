@@ -661,7 +661,7 @@ function getzabbrs(tzname)
     else
       if (tzname == "Pacific/Johnston")
           stdabbr = ("HST",-36000); dstabbr = ("HST",-36000);
-      elseif any(tzname .== ["UTC","TAI","UT1","GMT","GPS","LCL"])
+      elseif any(tzname .== ["LCL","UT0","UT1","UTC","CTU","TAI","TDT","TDB"])
           stdabbr = (tzname,0); dstabbr = (tzname,0);
       else
           print("unhandled: ", tzname,"\n");flush(stdout_stream);
@@ -693,18 +693,17 @@ for k in keys(iana_tzname_to_tzenum)
     end
 end
 
-
 _tzname_to_tznum = Dict{ASCIIString,Int64}(1080)
-tznum_offset = 8 # 1-based indexing, room for specials: "UTC" "GMT"
+tznum_offset = 8 # 1-based indexing, room for specials: "UTC" "TAI"
 # add specials with numbers < 8
-_tzname_to_tznum["LCL"] = 0 # Local Timezone
-_tzname_to_tznum["TDB"] = 1 # Barycentric Dynamical Time
-_tzname_to_tznum["TDT"] = 2 # Terrestrial Dynamical Time
-_tzname_to_tznum["TAI"] = 3 # International Atomic Time 
-_tzname_to_tznum["UT1"] = 4 # Mean Solar Time corrected for Polar Motion
-_tzname_to_tznum["UTC"] = 5 # Coordinated Universal Time
-_tzname_to_tznum["GMT"] = 6 # UT ignoring leapsecs
-_tzname_to_tznum["GPS"] = 7 # Global Positioning System Time
+_tzname_to_tznum["LCL"] = 0 # Civil Local Time
+_tzname_to_tznum["UT0"] = 1 # Civil Time in Greenwich (Mean Solar Time)
+_tzname_to_tznum["UT1"] = 2 # Mean Solar Time corrected for Polar Motion
+_tzname_to_tznum["UTC"] = 3 # Coordinated Universal Time (with leap seconds)
+_tzname_to_tznum["CTU"] = 4 # removes leapsecs from UTC 
+_tzname_to_tznum["TAI"] = 5 # International Atomic Time
+_tzname_to_tznum["TDT"] = 6 # Terrestrial Dynamical Time
+_tzname_to_tznum["TDB"] = 7 # Barycentric Dynamical Time
 
 # fill in iana timezone names mapped to iana+offset nums
 for (k,v) in iana_tzname_to_tzenum
@@ -719,15 +718,15 @@ end
 # timezone std,savings abbreviations and GMToffsets in seconds
 _tznum_to_abbroffset = Dict{Int64, ((ASCIIString,Int64),(ASCIIString,Int64))}(511)
 # make entries for specials
-# !!FIXME!! LCL
+# !!CHECKME!! LCL
 _tznum_to_abbroffset[0] = (("LCL",0),("LCL",0)) 
-_tznum_to_abbroffset[1] = (("TDB",0),("TDB",0))
-_tznum_to_abbroffset[2] = (("TDT",0),("TDT",0))
-_tznum_to_abbroffset[3] = (("TAI",0),("TAI",0))
-_tznum_to_abbroffset[4] = (("UT1",0),("UT1",0))
-_tznum_to_abbroffset[5] = (("UTC",0),("UTC",0))
-_tznum_to_abbroffset[6] = (("GMT",0),("GMT",0))
-_tznum_to_abbroffset[7] = (("GPS",0),("GPS",0))
+_tznum_to_abbroffset[1] = (("UT0",0),("UT0",0))
+_tznum_to_abbroffset[2] = (("UT1",0),("UT1",0))
+_tznum_to_abbroffset[3] = (("UTC",0),("UTC",0))
+_tznum_to_abbroffset[4] = (("CTU",0),("CTU",0))
+_tznum_to_abbroffset[5] = (("TAI",0),("TAI",0))
+_tznum_to_abbroffset[6] = (("TDB",0),("TDT",0))
+_tznum_to_abbroffset[7] = (("TDB",0),("TDB",0))
 
 for (k,v) in iana_tzname_to_abbroffset
     _tznum_to_abbroffset[ _tzname_to_tznum[k] ] = v
