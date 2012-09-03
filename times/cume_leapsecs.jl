@@ -3,67 +3,65 @@
 
 # at or after 1961 TAI-UTC > 0, TAI > UTC
 
-module cume_leapsecs
+module leapsec # cume_leapsecs
 
-    export utc_to_tai, tai_to_utc, _max_known_leapsec_year,
-           tai_minus_utc, utc_minus_tai,
-           tai_minus_utc_flt, tai_minus_utc_flt
+export utc_to_tai, tai_to_utc, _max_known_leapsec_year,
+       tai_minus_utc, utc_minus_tai,
+       tai_minus_utc_flt, tai_minus_utc_flt
 
 
-    import Base.*
-    import Main.search_gte
-    import Main.jtm_srcfile
+import Base.*
+import Tm4Julia.search_gte
+import grain.ymd_to_daynum
 
-    include( jtm_srcfile("days/JAS_daynum.jl") )
-    import JAS_daynum.*
 
 const _max_known_leapsec_year = 2012
 
 const _tai_minus_utc_1961_1972_daynum =
 [
-    daynum( 1961,  1, 1 ), #  1
-    daynum( 1961,  8, 1 ),
-    daynum( 1962,  1, 1 ),
-    daynum( 1963, 10, 1 ),
-    daynum( 1964,  1, 1 ),
-    daynum( 1964,  4, 1 ),
-    daynum( 1964,  9, 1 ),
-    daynum( 1965,  1, 1 ),
-    daynum( 1965,  3, 1 ),
-    daynum( 1965,  7, 1 ),
-    daynum( 1965,  9, 1 ),
-    daynum( 1966,  1, 1 ),
-    daynum( 1968,  2, 1 ),
-    daynum( 1971, 12,31 ), # 14
+    ymd_to_daynum( 1961,  1, 1 ), #  1
+    ymd_to_daynum( 1961,  8, 1 ),
+    ymd_to_daynum( 1962,  1, 1 ),
+    ymd_to_daynum( 1963, 10, 1 ),
+    ymd_to_daynum( 1964,  1, 1 ),
+    ymd_to_daynum( 1964,  4, 1 ),
+    ymd_to_daynum( 1964,  9, 1 ),
+    ymd_to_daynum( 1965,  1, 1 ),
+    ymd_to_daynum( 1965,  3, 1 ),
+    ymd_to_daynum( 1965,  7, 1 ),
+    ymd_to_daynum( 1965,  9, 1 ),
+    ymd_to_daynum( 1966,  1, 1 ),
+    ymd_to_daynum( 1968,  2, 1 ),
+    ymd_to_daynum( 1971, 12,31 ), # 14
 ]
 
 const _tai_minus_utc_1972_2012_daynum = [
-    daynum( 1972, 1, 1 ), # 1
-    daynum( 1972, 7, 1 ),
-    daynum( 1973, 1, 1 ),
-    daynum( 1974, 1, 1 ),
-    daynum( 1975, 1, 1 ),
-    daynum( 1976, 1, 1 ),
-    daynum( 1977, 1, 1 ),
-    daynum( 1978, 1, 1 ),
-    daynum( 1979, 1, 1 ),
-    daynum( 1980, 1, 1 ),
-    daynum( 1981, 7, 1 ),
-    daynum( 1982, 7, 1 ),
-    daynum( 1983, 7, 1 ),
-    daynum( 1985, 7, 1 ),
-    daynum( 1988, 1, 1 ),
-    daynum( 1990, 1, 1 ),
-    daynum( 1991, 1, 1 ),
-    daynum( 1992, 7, 1 ),
-    daynum( 1993, 7, 1 ),
-    daynum( 1994, 7, 1 ),
-    daynum( 1996, 1, 1 ),
-    daynum( 1997, 7, 1 ),
-    daynum( 1999, 1, 1 ),
-    daynum( 2006, 1, 1 ),
-    daynum( 2009, 1, 1 ),
-    daynum( 2012, 7, 1 ), # 26
+    ymd_to_daynum( 1972, 1, 1 ), # 1
+    ymd_to_daynum( 1972, 7, 1 ),
+    ymd_to_daynum( 1973, 1, 1 ),
+    ymd_to_daynum( 1974, 1, 1 ),
+    ymd_to_daynum( 1975, 1, 1 ),
+    ymd_to_daynum( 1976, 1, 1 ),
+    ymd_to_daynum( 1977, 1, 1 ),
+    ymd_to_daynum( 1978, 1, 1 ),
+    ymd_to_daynum( 1979, 1, 1 ),
+    ymd_to_daynum( 1980, 1, 1 ),
+    ymd_to_daynum( 1981, 7, 1 ),
+    ymd_to_daynum( 1982, 7, 1 ),
+    ymd_to_daynum( 1983, 7, 1 ),
+    ymd_to_daynum( 1985, 7, 1 ),
+    ymd_to_daynum( 1988, 1, 1 ),
+    ymd_to_daynum( 1990, 1, 1 ),
+    ymd_to_daynum( 1991, 1, 1 ),
+    ymd_to_daynum( 1992, 7, 1 ),
+    ymd_to_daynum( 1993, 7, 1 ),
+    ymd_to_daynum( 1994, 7, 1 ),
+    ymd_to_daynum( 1996, 1, 1 ),
+    ymd_to_daynum( 1997, 7, 1 ),
+    ymd_to_daynum( 1999, 1, 1 ),
+    ymd_to_daynum( 2006, 1, 1 ),
+    ymd_to_daynum( 2009, 1, 1 ),
+    ymd_to_daynum( 2012, 7, 1 ), # 26
 ];
 
 
@@ -120,7 +118,7 @@ function __tai_minus_utc(daynum::Int64) # function tai_minus_utc_1961_2012(daynu
 
   if      (daynum >= daynum(2012, 7, 1))
       return 35
-  elseif  (daynum <  daynum(1961, 1, 1))
+  elseif  (daynum <  ymd_to_daynum(1961, 1, 1))
       return  0
   elseif  (daynum >= daynum(1972, 1, 1))
       return _tai_minus_utc_1972_2012_secs[

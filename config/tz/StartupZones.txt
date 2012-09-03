@@ -13,7 +13,3 @@ Europe/Madrid
 Europe/Moscow
 Europe/Paris
 Europe/Rome
-Special/LCL
-Special/TAI
-Special/UT1
-Special/UTC

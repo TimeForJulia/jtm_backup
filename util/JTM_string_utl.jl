@@ -11,10 +11,10 @@
 # created: 2012-Aug-14 in New York, USA
 #
 
-module JTM_string_utl
-
-import Base.*
-export haschr, delchr, rplchr, capitalize, camelcase
+# module JTM_string_utl
+#
+# import Base.*
+# export haschr, delchr, rplchr, capitalize, camelcase
 
 haschr(s::String,c::Char) = (strchr(s,c) > 0)
 delchr(s::String,c::Char) = haschr(s,c) ? join(split(s,c)) : s
@@ -25,5 +25,5 @@ capitalize(s::String) = (s!="") ? strcat(uppercase(s[1]),s[2:]) : s
 camelcase(s::String,c::Char) = join(map(x->capitalize(x),split(s,c)))
 camelcase(s::String) = haschr(s,'_') ? camelcase(s,'_') : camelcase(s,' ')
 
-end # module
+# end # module
 

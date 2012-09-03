@@ -9,22 +9,22 @@
 # refined: 2012-Aug-07
 # settled: 2012-Sep-02
 
-module JAS_daynum
+# module JAS_daynum
 
-export ymd_to_daynum, daynum_to_ymd, _daynum,
-       _minDaynum, _maxDaynum,
-       _NIX_day0, _NIX_day0sec,
-       _TAI_day0, _TAI_day0sec,
-       _MJD_day0, _MJD_day0sec
+# export unchecked_daynum, daynum, daynum2ymd,
+#        _minDaynum, _maxDaynum,
+#        _NIX_day0, _NIX_day0sec,
+#        _TAI_day0, _TAI_day0sec,
+#        _MJD_day0, _MJD_day0sec
 
 
-import Base.*
+# import Base.*
 
-import Main._minYear
-import Main._maxYear
+# import Main._minYear
+# import Main._maxYear
 
 # verified
-# daynum2ymd(unchecked_daynum(y,m,d)) == y,m,d forall dates allowed
+# daynum2ymd(unchecked_ymd_to_daynum(y,m,d)) == y,m,d forall dates allowed
 
 # convert date into a nonnegative daynum
 #   dates change at midnight (a fact not used in this function)
@@ -78,7 +78,7 @@ import Main._maxYear
 # end
 
 
-function _daynum(y::Int, m::Int, d::Int)
+function _ymd_to_daynum(y::Int, m::Int, d::Int)
     # if (m<3)  y += 4399  else  y += 4400  end;
     y += 4400
     y -= (m >= 3) ? 0 : 1
@@ -96,7 +96,7 @@ end
 
 function ymd_to_daynum(y::Int, m::Int, d::Int)
   if (_minYear <= y <= _maxYear)
-     _daynum(y,m,d)
+     _ymd_to_daynum(y,m,d)
   end
 end
 
@@ -133,36 +133,36 @@ end
 
 
 # daynum extrema
-const _minDaynum = daynum(_minYear,  1,  1)
-const _maxDaynum = daynum(_maxYear, 12, 31)
+const _minDaynum = ymd_to_daynum(_minYear,  1,  1)
+const _maxDaynum = ymd_to_daynum(_maxYear, 12, 31)
 
 # daycounts given as Modified Julian Dates and as relative to TAI and Unix Epochs
 
-const _MJD_day0 = daynum(1858, 11, 17)
-const _TAI_day0 = daynum(1958,  1,  1)
-const _NIX_day0 = daynum(1970,  1,  1)
+const _MJD_day0 = ymd_to_daynum(1858, 11, 17)
+const _TAI_day0 = ymd_to_daynum(1958,  1,  1)
+const _NIX_day0 = ymd_to_daynum(1970,  1,  1)
 
-const _MJD_day0sec = daynum(1858, 11, 17) * 86400
-const _TAI_day0sec = daynum(1958,  1,  1) * 86400
-const _NIX_day0sec = daynum(1970,  1,  1) * 86400
+const _MJD_day0sec = ymd_to_daynum(1858, 11, 17) * 86400
+const _TAI_day0sec = ymd_to_daynum(1958,  1,  1) * 86400
+const _NIX_day0sec = ymd_to_daynum(1970,  1,  1) * 86400
 
 
 daynum2mjday(daynum::Integer)  =  daynum - _MJD_day0
-mjday2daynum(mjday::Integer)   =  mjday  + _MJD_day0
-mjday2ymd(mjday::Integer)      =  daynum2ymd(mjday2daynum(mjday))
+mjday2ymd_to_daynum(mjday::Integer)   =  mjday  + _MJD_day0
+mjday2ymd(mjday::Integer)      =  daynum2ymd(mjday2ymd_to_daynum(mjday))
 
 
 daynum2taiday(daynum::Integer) =  daynum - _TAI_day0
-taiday2daynum(taiday::Integer) =  taiday + _TAI_day0
-taiday2ymd(taiday::Integer)    =  daynum2ymd(taiday2daynum(taiday))
+taiday2ymd_to_daynum(taiday::Integer) =  taiday + _TAI_day0
+taiday2ymd(taiday::Integer)    =  daynum2ymd(taiday2ymd_to_daynum(taiday))
 
 
 daynum2nixday(daynum::Integer) =  daynum - _NIX_day0
-nixday2daynum(nixday::Integer) =  nixday + _NIX_day0
-nixday2ymd(nixday::Integer)    =  daynum2ymd(nixday2daynum(nixday))
+nixday2ymd_to_daynum(nixday::Integer) =  nixday + _NIX_day0
+nixday2ymd(nixday::Integer)    =  daynum2ymd(nixday2ymd_to_daynum(nixday))
 
-nixday2mjday(nixday::Integer)  =  daynum2mjday(nixday2daynum(nixday))
-mjday2nixday(mjday::Integer)   =  daynum2nixday(mjday2daynum(mjday))
+nixday2mjday(nixday::Integer)  =  daynum2mjday(nixday2ymd_to_daynum(nixday))
+mjday2nixday(mjday::Integer)   =  daynum2nixday(mjday2ymd_to_daynum(mjday))
 
 
 # isLeapYearGregorian(y::Integer) = ((y % 4) == 0) ? (((y % 100) != 0) | ((y % 400) == 0)) : false;
@@ -181,7 +181,7 @@ mjday2nixday(mjday::Integer)   =  daynum2nixday(mjday2daynum(mjday))
 #     for m in 1:12
 
 #         for d in 1:monthdaysGregorian(y,m)
-#             dnum = unchecked_daynum(y,m,d)
+#             dnum = unchecked_ymd_to_daynum(y,m,d)
 #             yy,mm,dd = daynum2ymd(dnum)
 #             if ((yy!=y)||(mm!=m)||(dd!=d))
 #                 error("not ok y,m,d=$(y),$(m),$(d) dn=$(dn) yymmdd=$(yy),$(mm),$(dd)",(y,m,d))
@@ -192,5 +192,5 @@ mjday2nixday(mjday::Integer)   =  daynum2nixday(mjday2daynum(mjday))
 
 
 
-end # module
+#end # module
 

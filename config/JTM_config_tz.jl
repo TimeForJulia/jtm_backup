@@ -5,19 +5,20 @@
 # created: 2012-Jun-18 in New York, USA
 # revised: 2012-Aug-14
 
-module JTM_config_tz
+# module JTM_config_tz
 
-export _tzname_to_tznum, _tznum_to_filepath, 
+export _tzname_to_tznum, _tznum_to_filepath,
        my_tz_stdname_file, my_tz_preloads_file,
        tz_basic_fname, tz_vects_fname,
        TimezoneBasic, TimezoneVects, _tz_basic, _tz_vects,
        tznum_to_tz_basic_fname, tznum_to_tz_vects_fname,
        tznum_to_tz_basic_file, tznum_to_tz_vects_file
 
-import Base.*
-import Main.jtm_cfgfile
-import Main.jtm_tmzfile
-
+# import Base.*
+# #import Main.jtm_cfgfile
+# #import Main.jtm_tmzfile
+# import JTM_dirpaths.jtm_tmzfile
+# import JTM_dirpaths.jtm_file
 
 # IANA timezone name and number (enum value + 8) [+ some win tz names]
 # dictionaries: name -> num, num -> path (path holds tz's datafiles)
@@ -34,8 +35,8 @@ close(fio)
 
 # these are best undisturbed
 
-const my_tz_stdname_file  = jtm_cfgfile("tz/MyTimezone.txt")
-const my_tz_preloads_file = jtm_cfgfile("tz/StartupZones.txt")
+#const my_tz_stdname_file  = JTM_dirpaths.jtm_cfgfile("tz/MyTimezone.txt")
+#const my_tz_preloads_file = JTM_dirpaths.jtm_cfgfile("tz/StartupZones.txt")
 
 
 const tz_basic_fname  = "tzbasic.jld"
@@ -100,4 +101,4 @@ function tznum_to_tz_vects_file(tznum::Integer)
 end
 
 
-end # module
+#end # module

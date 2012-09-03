@@ -1,26 +1,57 @@
 # source : JTM_config_etc.jl (./extras/tm4julia/config/)
 # purpose: provides internal configuration settings
 #
-# author : Jeffrey A. Sarnoff
+# author :p Jeffrey A. Sarnoff
 # created: 2012-Jun-18 in New York, USA
 # revised: 2012-Aug-14
 
-module JTM_config_etc
+# module JTM_config_etc
 
-export _maxYear, _minYear, _maxHour, _minHour, _maxSec, _minSec,
+export _daysecs,
+       _minDayNumber, _maxDayNumber, _topDayNumber,
+       _minSecNumber, _maxSecNumber, _topSecNumber,
+       _minDaysNumber, _maxDaysNumber, _topDaysNumber,
+       _minSecsNumber, _maxSecsNumber, _topSecsNumber,
+       _minYear, _maxYear, _topYear,  # prefer [_min .. _top ), clopen interval
+       _minHour, _maxHour, _topHour,  # [ _min .. _max ], inclusive if needed
+       _minSec,  _maxSec , _topSec,
        NaV, Unassignable, Unassigned,
        search_gte, checked_search_gte
 
-import Base.*
+# import Base.*
 
-const _maxYear  =  3999
-const _minYear  = -3999
+const _daysecs  = 86400 # unless leapsecond added
+const _leapsecs = 35    # as of 2012-12-31
 
-const _maxHour  =  24*8
-const _minHour  = -_maxHour
+const _topYear  = 4000
+const _minYear  = 1 - _topYear
+const _maxYear  = 0 - _minYear
+                                   # proleptic Gregorian, as it were
+                                   # (see JAS_daynum.jl for details)
+const _topDayNumber  = 3068037     #  4000-01-01
+const _minDayNumber  =  146463     # -3999-01-01
+const _maxDayNumber  = 3068036     #  3999-12-31
 
-const _maxSec   =  86401
-const _minSec   = -_maxSec
+const _topSecNumber  = (_topDayNumber * _daysecs) + itrunc(((4000-2012)/(2012-1972))*_leapsecs)
+const _minSecNumber  = (_minDayNumber * _daysecs)
+const _maxSecNumber  = (_maxDayNumber * _daysecs) + itrunc(((4000-2012)/(2012-1972))*_leapsecs)
+
+const _topDaysNumber = (_topDayNumber - _minDayNumber)
+const _minDaysNumber = (0)
+const _maxDaysNumber = (_topDayNumber - _minDayNumber - 1)
+
+const _topSecsNumber = (_topSecNumber - _minSecNumber)
+const _minSecsNumber = (0)
+const _maxSecsNumber = (_topSecNumber - _minSecNumber - 1)
+
+
+const _maxHour  = 24*8
+const _minHour  = 0-_maxHour
+const _topHour  = 1+_maxHour
+
+const _maxSec   = 86401
+const _minSec   = 0-_maxSec
+const _topSec   = 1+_maxSec
 
 # 60*60 == 3600 seconds per hour
 # 15 minutes = 15*60 seconds == 900 seconds per 15 minutes
@@ -132,4 +163,4 @@ end
 
 NaV(t::Signed) = typemin(t)
 
-end # module
+# end # module

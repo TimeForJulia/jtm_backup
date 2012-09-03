@@ -5,11 +5,6 @@
 # created: 2012-Jun-18 in New York, USA
 # revised: 2012-Aug-14
 
-import Main.jtm_utlfile
-
-require(jtm_utlfile("JTM_string_utl.jl"))
-import JTM_string_utl.*
-
-require(jtm_utlfile("JTM_search_utl.jl"))
-import JTM_search_utl.*
-
+include(jtm_utlfile("JTM_search_utl.jl"))
+include(jtm_utlfile("JTM_string_utl.jl"))
+include(jtm_utlfile("JTM_numstr_utl.jl"))
