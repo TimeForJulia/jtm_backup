@@ -1,27 +1,15 @@
-# source : tm4julia.jl (./extras/tm4julia/)
+# source : jtm.jl (./extras/tm4julia/)
 # purpose: initialize date and time facilities
 #
 # author : Jeffrey A. Sarnoff
 # created: 2012-Aug-14 in New York, USA
+# revised: 2012-Sep-02
 
-# julia> TM4JULIA_HOME="/home/jas/Desktop/julia/extras/tm4julia"
-# "/home/jas/Desktop/julia/extras/tm4julia"
-# julia> export TM4JULIA_HOME
-#
-# julia> load("tm4julia/config/JTM_dirpaths.jl")
-# julia> import JTM_dirpaths.*
-#
-# julia> load("tm4julia/config/JTM_config.jl")
-#        does
-#
-#        load("tm4julia/config/JTM_config_tz.jl")
-#        import JTM_config_tz.*
-#        load("tm4julia/config/JTM_local_tz.jl")
-#        import JTM_local_tz.*
-#        load("tm4julia/config/JTM_config_etc.jl")
-#        import JTM_config_etc.*
-#
 
+# we place these entities in the Main user namespace
+#    the full directory path to the root dir for tm4julia
+#    the date, time, datetime and timezone input acceptance
+#
 
 # provide full directory paths for accessing facility files
 #
@@ -34,9 +22,15 @@ if (stat( "$(TM4JULIA_HOME)/tm4julia.jl" ).mode==0)
     end
 end
 export TM4JULIA_HOME
+
+module JTM1
+
 # access to facility files using paths relative to TM4JULIA_HOME
-load("$(TM4JULIA_HOME)/config/JTM_dirpaths.jl");
+include("$(TM4JULIA_HOME)/config/JTM_dirpaths.jl");
 import JTM_dirpaths.*
+
+end # module JTM1
+
 
 require(jtm_cfgfile("JTM_config.jl"))
 

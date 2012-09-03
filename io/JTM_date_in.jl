@@ -1,3 +1,8 @@
+
+# 2^19 - (uint((0x0001<<4)+ ( (0x0001<<3)-1 ))<<8) == 86400*6
+# 2^18 - (uint((0x0001<<4)+ ( (0x0001<<3)-1 ))<<7) == 86400*3
+
+
 module JTM_date_in
 
 export date
@@ -17,8 +22,8 @@ import JTM_config_tz.tznum_to_tz_basic_file
 import JTM_config_tz.tznum_to_tz_vects_file
 require( jtm_cfgfile("JTM_config_etc.jl") )
 import JTM_config_etc.search_gte
-require( jtm_srcfile("days/daynum.jl") )
-import daynum.daynumber
+require( jtm_srcfile("days/JAS_daynum.jl") )
+import JAS_daynum.daynum
 require( jtm_srcfile("times/cume_leapsecs.jl") )
 import cume_leapsecs.utc_to_tai
 import cume_leapsecs.tai_to_utc
@@ -50,9 +55,9 @@ end
 function date(yr::Int,mo::Int,dy::Int,tmzone::Int)
     tmzone_num_available(tmzone)
 
-    daynum = daynumber(yr,mo,dy)
+    daynum = daynum(yr,mo,dy)
     daynumsecs = daynum * 86400
-    if (tmzone > 7) 
+    if (tmzone > 7)
         idx = search_gte(_tz_vects[tmzone].utcsecs, daynumsecs)
         if (idx == 0) idx = 1  end
         utc2lcl = _tz_vects[tmzone].utc2lcl[idx]
@@ -61,7 +66,7 @@ function date(yr::Int,mo::Int,dy::Int,tmzone::Int)
         daynumsecs += tai_minus_utc(daynum)
     elseif (tmzone == _tzname_to_tznum["UTC"])
         daynumsecs += tai_minus_utc(daynum)
-    end 
+    end
     daynumsecs
 end
 
@@ -72,6 +77,22 @@ end
 
 function date(yr::Int,mo::Int,dy::Int)
     date(yr,mo,dy, _local_tz_num)
+end
+
+# timezone conversion
+
+function date(daynumsecs::Int64, tmzone::Int)
+    tmzone_num_available(tmzone)
+    daynum = iround(daynumsecs/86400)
+    daynumsecs += utc_minus_tai(daynum) # re-utc
+    if (tmzone > 7)
+        idx = search_gte(_tz_vects[tmzone].utcsecs, daynumsecs)
+        if (idx == 0) idx = 1  end
+        utc2lcl = _tz_vects[tmzone].utc2lcl[idx]
+        if (utc2lcl == typemin(Int64)) utc2lcl = 0 end
+        daynumsecs += utc2lcl # utc daynumsecs maybe with leap secs to add
+    end
+    daynumsecs
 end
 
 end # module

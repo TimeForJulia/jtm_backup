@@ -16,35 +16,35 @@ end_year   = 2031
 
 
 const _tai_minus_utc_1972_2012_daynum = [
-    daynumber( 1972, 1, 1 ), # 1
-    daynumber( 1972, 7, 1 ),
-    daynumber( 1973, 1, 1 ),
-    daynumber( 1974, 1, 1 ),
-    daynumber( 1975, 1, 1 ),
-    daynumber( 1976, 1, 1 ),
-    daynumber( 1977, 1, 1 ),
-    daynumber( 1978, 1, 1 ),
-    daynumber( 1979, 1, 1 ),
-    daynumber( 1980, 1, 1 ),
-    daynumber( 1981, 7, 1 ),
-    daynumber( 1982, 7, 1 ),
-    daynumber( 1983, 7, 1 ),
-    daynumber( 1985, 7, 1 ),
-    daynumber( 1988, 1, 1 ),
-    daynumber( 1990, 1, 1 ),
-    daynumber( 1991, 1, 1 ),
-    daynumber( 1992, 7, 1 ),
-    daynumber( 1993, 7, 1 ),
-    daynumber( 1994, 7, 1 ),
-    daynumber( 1996, 1, 1 ),
-    daynumber( 1997, 7, 1 ),
-    daynumber( 1999, 1, 1 ),
-    daynumber( 2006, 1, 1 ),
-    daynumber( 2009, 1, 1 ),
-    daynumber( 2012, 7, 1 ), # 26
+    daynum( 1972, 1, 1 ), # 1
+    daynum( 1972, 7, 1 ),
+    daynum( 1973, 1, 1 ),
+    daynum( 1974, 1, 1 ),
+    daynum( 1975, 1, 1 ),
+    daynum( 1976, 1, 1 ),
+    daynum( 1977, 1, 1 ),
+    daynum( 1978, 1, 1 ),
+    daynum( 1979, 1, 1 ),
+    daynum( 1980, 1, 1 ),
+    daynum( 1981, 7, 1 ),
+    daynum( 1982, 7, 1 ),
+    daynum( 1983, 7, 1 ),
+    daynum( 1985, 7, 1 ),
+    daynum( 1988, 1, 1 ),
+    daynum( 1990, 1, 1 ),
+    daynum( 1991, 1, 1 ),
+    daynum( 1992, 7, 1 ),
+    daynum( 1993, 7, 1 ),
+    daynum( 1994, 7, 1 ),
+    daynum( 1996, 1, 1 ),
+    daynum( 1997, 7, 1 ),
+    daynum( 1999, 1, 1 ),
+    daynum( 2006, 1, 1 ),
+    daynum( 2009, 1, 1 ),
+    daynum( 2012, 7, 1 ), # 26
 ];
 
-const _tai_minus_utc_1972_2012_secnum = 
+const _tai_minus_utc_1972_2012_secnum =
    86400 * _tai_minus_utc_1972_2012_daynum
 
 const _tai_minus_utc_1972_2012_secs =
@@ -81,20 +81,20 @@ const _tai_minus_utc_1972_2012_secs =
 
 const _tai_minus_utc_1961_1972_daynum =
 [
-    daynumber( 1961,  1, 1 ), #  1
-    daynumber( 1961,  8, 1 ),
-    daynumber( 1962,  1, 1 ),
-    daynumber( 1963, 10, 1 ),
-    daynumber( 1964,  1, 1 ),
-    daynumber( 1964,  4, 1 ),
-    daynumber( 1964,  9, 1 ),
-    daynumber( 1965,  1, 1 ),
-    daynumber( 1965,  3, 1 ),
-    daynumber( 1965,  7, 1 ),
-    daynumber( 1965,  9, 1 ),
-    daynumber( 1966,  1, 1 ),
-    daynumber( 1968,  2, 1 ),
-    daynumber( 1971, 12,31 ), # 14
+    daynum( 1961,  1, 1 ), #  1
+    daynum( 1961,  8, 1 ),
+    daynum( 1962,  1, 1 ),
+    daynum( 1963, 10, 1 ),
+    daynum( 1964,  1, 1 ),
+    daynum( 1964,  4, 1 ),
+    daynum( 1964,  9, 1 ),
+    daynum( 1965,  1, 1 ),
+    daynum( 1965,  3, 1 ),
+    daynum( 1965,  7, 1 ),
+    daynum( 1965,  9, 1 ),
+    daynum( 1966,  1, 1 ),
+    daynum( 1968,  2, 1 ),
+    daynum( 1971, 12,31 ), # 14
 ]
 
 const _tai_minus_utc_1961_1972_secs =
@@ -134,11 +134,11 @@ end
 # cume leapsecs as of daynum 0h
 #function __tai_minus_utc(daynum::Int64) # function tai_minus_utc_1961_2012(daynum::Int64)
 function cumeleapsecs(daynum::Int64)
-  if      (daynum >= daynumber(2012, 7, 1))
+  if      (daynum >= daynum(2012, 7, 1))
       return 35
-  elseif  (daynum <  daynumber(1961, 1, 1))
+  elseif  (daynum <  daynum(1961, 1, 1))
       return  0
-  elseif  (daynum >= daynumber(1972, 1, 1))
+  elseif  (daynum >= daynum(1972, 1, 1))
       return _tai_minus_utc_1972_2012_secs[
                  search_gte( _tai_minus_utc_1972_2012_daynum, daynum )
                                           ]
@@ -152,11 +152,11 @@ end
 
 function cumeleapsecs_atsec(secnum::Int64)
   daynum = iround(secnum/86400)
-  if      (secnum >= daynumber(2012, 7, 1)*86400)
+  if      (secnum >= daynum(2012, 7, 1)*86400)
       return 35
-  elseif  (secnum <  daynumber(1961, 1, 1)*86400)
+  elseif  (secnum <  daynum(1961, 1, 1)*86400)
       return  0
-  elseif  (secnum >= daynumber(1972, 1, 1)*86400)
+  elseif  (secnum >= daynum(1972, 1, 1)*86400)
       return _tai_minus_utc_1972_2012_secs[
                  search_gte( _tai_minus_utc_1972_2012_secnum, secnum )
                                           ]
@@ -666,7 +666,7 @@ function getzabbrs(tzname)
       else
           print("unhandled: ", tzname,"\n");flush(stdout_stream);
       end
-    end  
+    end
   elseif (length(zdumped)>1)
       ans1 = split(split(zdumped[1],"2010 ")[3]," ")
       ans2 = split(split(zdumped[2],"2010 ")[3]," ")
@@ -676,7 +676,7 @@ function getzabbrs(tzname)
      elseif (ans1[2] == "isdst=1")
          dstabbr = (ans1[1],int64(split(ans1[3],"=")[2]))
          stdabbr = (ans2[1],int64(split(ans2[3],"=")[2]))
-     end    
+     end
   end
   (stdabbr,dstabbr)
 end
@@ -700,7 +700,7 @@ _tzname_to_tznum["LCL"] = 0 # Civil Local Time
 _tzname_to_tznum["UT0"] = 1 # Civil Time in Greenwich (Mean Solar Time)
 _tzname_to_tznum["UT1"] = 2 # Mean Solar Time corrected for Polar Motion
 _tzname_to_tznum["UTC"] = 3 # Coordinated Universal Time (with leap seconds)
-_tzname_to_tznum["CTU"] = 4 # removes leapsecs from UTC 
+_tzname_to_tznum["CTU"] = 4 # removes leapsecs from UTC
 _tzname_to_tznum["TAI"] = 5 # International Atomic Time
 _tzname_to_tznum["TDT"] = 6 # Terrestrial Dynamical Time
 _tzname_to_tznum["TDB"] = 7 # Barycentric Dynamical Time
@@ -719,7 +719,7 @@ end
 _tznum_to_abbroffset = Dict{Int64, ((ASCIIString,Int64),(ASCIIString,Int64))}(511)
 # make entries for specials
 # !!CHECKME!! LCL
-_tznum_to_abbroffset[0] = (("LCL",0),("LCL",0)) 
+_tznum_to_abbroffset[0] = (("LCL",0),("LCL",0))
 _tznum_to_abbroffset[1] = (("UT0",0),("UT0",0))
 _tznum_to_abbroffset[2] = (("UT1",0),("UT1",0))
 _tznum_to_abbroffset[3] = (("UTC",0),("UTC",0))
@@ -734,8 +734,8 @@ end
 
 
 # ( 1970, 1, 1) --> 2326595  [UNIX date zero] is our daynum 2326595
-#   and there are no leap seconds prior to 1970 
-#   so our secnum for UNIX Epoch is 2326595*86400 = 201_017_808_000 
+#   and there are no leap seconds prior to 1970
+#   so our secnum for UNIX Epoch is 2326595*86400 = 201_017_808_000
 
 const _seconds_at_UNIX_Epoch_ = 201_017_808_000;
 
@@ -783,10 +783,10 @@ function zdump2secs(tzname,fromyear,uptoyear)
   end
   idx_even_gmt_secs = filter(x->(x>0),[if iseven(zutc_secs[i]) i else 0 end for i=1:length(zutc_secs)])
 
-  zutc_secs  = [zutc_secs[i]::Int64 for i=idx_even_gmt_secs] ;  
+  zutc_secs  = [zutc_secs[i]::Int64 for i=idx_even_gmt_secs] ;
   zutc_secs  += _seconds_at_UNIX_Epoch_;
   zutc2lcl   = [zutc2lcl[i]::Int64  for i=idx_even_gmt_secs] ;
-  zisdst     = [zisdst[i]::Int64    for i=idx_even_gmt_secs] ;  
+  zisdst     = [zisdst[i]::Int64    for i=idx_even_gmt_secs] ;
 
   dups = find(0 .== diff(zisdst));
   if (length(dups)>0)
@@ -798,21 +798,21 @@ function zdump2secs(tzname,fromyear,uptoyear)
            zisdst    = zisdst[2:end]
            zutc_secs = zutc_secs[2:end]
            zutc2lcl  = zutc2lcl[2:end]
-        end   
+        end
       elseif (n == length(zisdst))
         begin
            zisdst    = zisdst[1:(end-1)]
            zutc_secs = zutc_secs[1:(end-1)]
            zutc2lcl  = zutc2lcl[1:(end-1)]
-        end   
+        end
       else
         begin
            zisdst    = vcat(zisdst[1:(n-1)],zisdst[(n+1):end])
            zutc_secs = vcat(zutc_secs[1:(n-1)],zutc_secs[(n+1):end])
            zutc2lcl  = vcat(zutc2lcl[1:(n-1)],zutc2lcl[(n+1):end])
-        end   
+        end
       end
-    end  
+    end
   end
 
   # without correction
@@ -846,14 +846,14 @@ tzdata_dir = "$(TM4JULIA_HOME)/tzdata"
 tm4julia_data(astr) = "$(TM4JULIA_HOME)/tzdata/$(astr)"
 tm4julia_datapath(astr) = "$(TM4JULIA_HOME)/tzdata/$(astr)"
 
-_tznum_to_filepath = Dict{Int64,ASCIIString}(511)       
+_tznum_to_filepath = Dict{Int64,ASCIIString}(511)
 for i=0:max(keys(_tznum_to_tzname))
   tzname = _tznum_to_tzname[i]
   fname   = split(tzname,"/");
   basedir = fname[1]; localedir=fname[end];
   if (basedir == localedir)
      basedir = "Special"
-  end   
+  end
   fname = tm4julia_data("$(basedir)/$(localedir)/")
   _tznum_to_filepath[ i ] = fname
 end
@@ -867,7 +867,7 @@ function _tzname_to_file_and_num(tzname)
   basedir = fnames[1]; basefilename=fnames[end];
   if (basedir == basefilename)
      basedir = "Special"
-  end   
+  end
   num = _tzname_to_tznum[tzname]
   (basedir,basefilename,num)
 end
@@ -881,7 +881,7 @@ end
 
 if (stat(tzdata_dir).mode==0)
      a = readchomp(`mkdir $(tzdata_dir)`)
-end   
+end
 
 tzregions = [ "Africa", "America", "Antarctica", "Arctic", "Asia",
               "Atlantic", "Australia", "Europe", "Indian", "Pacific",
@@ -890,7 +890,7 @@ for region in tzregions
     filedir = tm4julia_datapath("$(region)")
     if (stat(filedir).mode==0)
         a = readchomp(`mkdir $(filedir)`)
-    end    
+    end
 end
 
 
@@ -905,7 +905,7 @@ for tzname in keys(_tzname_to_tznum)
   filedir    = tm4julia_datapath(datasubdir)
   if (stat(filedir).mode==0)
      a = readchomp(`mkdir $(filedir)`)
-  end   
+  end
 
   #    datasubdir = tm4julia_datapath(datasubdir)
   #    a = readchomp(`rm -rf $(datasubdir)*`)
@@ -921,28 +921,28 @@ for tzname in keys(_tzname_to_tznum)
   gmtsecs  = int64([0,0,0]);
   gmt2lcl  = int64([0,0,0]);
   isitdst  = int64([0,0,0]);
-  
+
   try
     tzvalues = zdump2secs(tzname,start_year,end_year);
     gmtsecs  = int64(tzvalues[:,1]);
     gmt2lcl  = int64(tzvalues[:,2]);
     isitdst  = int64(tzvalues[:,3]);
-  end    
+  end
 
   tz_basic = TimezoneBasic(tznum,gmt2std,gmt2dst,tzname,stdabbr,dstabbr)
   tz_vects = TimezoneVects(gmtsecs,gmt2lcl,isitdst)
   tz_basic_file = "$(datasubdir)/$(tz_basic_fname)"
   tz_vects_file = "$(datasubdir)/$(tz_vects_fname)"
 
-  fio=open(tm4julia_data(tz_basic_file),"w"); 
-  serialize(fio,tz_basic); 
+  fio=open(tm4julia_data(tz_basic_file),"w");
+  serialize(fio,tz_basic);
   close(fio);
 
 
-  fio=open(tm4julia_data(tz_vects_file),"w"); 
-  serialize(fio,tz_vects); 
+  fio=open(tm4julia_data(tz_vects_file),"w");
+  serialize(fio,tz_vects);
   close(fio);
-  
+
 #   gmtsecsfile = "$(filebase)gmtsecs.jld"
 #   gmt2lclfile = "$(filebase)gmt2lcl.jld"
 #   isitdstfile = "$(filebase)isitdst.jld"
@@ -952,7 +952,7 @@ for tzname in keys(_tzname_to_tznum)
 #   if (stat(gmtsecsfile).mode==0)
 #      a = readchomp(`cp -f $(gmtsecs_file) $(gmtsecsfile)`)
 #      a = readchomp(`chmod 777 $(gmtsecsfile)`)
-#   end     
+#   end
 #   if (stat(gmt2lclfile).mode==0)
 #      a = readchomp(`cp -f $(gmt2lcl_file) $(gmt2lclfile)`)
 #      a = readchomp(`chmod 755 $(gmt2lclfile)`)
@@ -968,14 +968,14 @@ for tzname in keys(_tzname_to_tznum)
 #   if (stat(tzonenumfile).mode==0)
 #      a = readchomp(`cp -f $(tzonenum_file) $(tzonenumfile)`)
 #      a = readchomp(`chmod 755 $(gmtsecsfile)`)
-#   end    
+#   end
 
 # #try
-#   fio=open(gmtsecsfile,"w"); serialize(fio,gmtsecs); close(fio); 
-#   fio=open(gmt2lclfile,"w"); serialize(fio,gmt2lcl); close(fio); 
-#   fio=open(isitdstfile,"w"); serialize(fio,isitdst); close(fio); 
-#   fio=open(tzonenumfile,"w"); serialize(fio,tznum); close(fio); 
-#   fio=open(tzabbrsfile,"w"); serialize(fio,tzabbrs); close(fio); 
+#   fio=open(gmtsecsfile,"w"); serialize(fio,gmtsecs); close(fio);
+#   fio=open(gmt2lclfile,"w"); serialize(fio,gmt2lcl); close(fio);
+#   fio=open(isitdstfile,"w"); serialize(fio,isitdst); close(fio);
+#   fio=open(tzonenumfile,"w"); serialize(fio,tznum); close(fio);
+#   fio=open(tzabbrsfile,"w"); serialize(fio,tzabbrs); close(fio);
 # #catch e
 # #  print(filebase,"\n");flush(stdout_stream);
 # #end
@@ -984,7 +984,7 @@ end
 
 # add city names
 for (k,v) in iana_tzname_to_tzenum
-   locale = split(k,"/")[end] 
+   locale = split(k,"/")[end]
    _tzname_to_tznum[locale] = v + tznum_offset
    if (strchr(locale,'-') > 0)
       locale = join(split(locale,'-'),'_')
@@ -993,7 +993,7 @@ for (k,v) in iana_tzname_to_tzenum
    if (strchr(locale,'_') > 0)
       locale = camelcase(locale,'_')
       _tzname_to_tznum[locale] = v + tznum_offset
-   end       
+   end
 end
 
 
@@ -1009,7 +1009,7 @@ end
 # Dateline Standard Time => GMT-1200
 
 # in windows cmd: tzutil /g returns current time zone ID
-# all windows time zone IDs end with  "Standard Time" 
+# all windows time zone IDs end with  "Standard Time"
 # there are a few without corresponding "Standard Time" entries
 # they are included for completeness (94 entries)
 win_tzid_to_iana_tznum = {
@@ -1117,7 +1117,7 @@ for (k,v) in win_tzid_to_iana_tznum
    #   nm = k[1:(end-14)]
    #   if (nm != "GMT")
    #      _tzname_to_tznum[ k[1:(end-14)] ] = v + tznum_offset
-   #   end   
+   #   end
    # end
 end
 

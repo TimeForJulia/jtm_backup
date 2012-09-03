@@ -5,65 +5,65 @@
 
 module cume_leapsecs
 
-    export utc_to_tai, tai_to_utc, _max_known_leapsec_year
-           # tai_minus_utc    , utc_minus_tai    ,
-           # tai_minus_utc_flt, tai_minus_utc_flt,
-           
+    export utc_to_tai, tai_to_utc, _max_known_leapsec_year,
+           tai_minus_utc, utc_minus_tai,
+           tai_minus_utc_flt, tai_minus_utc_flt
+
 
     import Base.*
     import Main.search_gte
     import Main.jtm_srcfile
 
-    require( jtm_srcfile("days/daynum.jl") )
-    import daynum.*
+    include( jtm_srcfile("days/JAS_daynum.jl") )
+    import JAS_daynum.*
 
 const _max_known_leapsec_year = 2012
 
 const _tai_minus_utc_1961_1972_daynum =
 [
-    daynumber( 1961,  1, 1 ), #  1
-    daynumber( 1961,  8, 1 ),
-    daynumber( 1962,  1, 1 ),
-    daynumber( 1963, 10, 1 ),
-    daynumber( 1964,  1, 1 ),
-    daynumber( 1964,  4, 1 ),
-    daynumber( 1964,  9, 1 ),
-    daynumber( 1965,  1, 1 ),
-    daynumber( 1965,  3, 1 ),
-    daynumber( 1965,  7, 1 ),
-    daynumber( 1965,  9, 1 ),
-    daynumber( 1966,  1, 1 ),
-    daynumber( 1968,  2, 1 ),
-    daynumber( 1971, 12,31 ), # 14
+    daynum( 1961,  1, 1 ), #  1
+    daynum( 1961,  8, 1 ),
+    daynum( 1962,  1, 1 ),
+    daynum( 1963, 10, 1 ),
+    daynum( 1964,  1, 1 ),
+    daynum( 1964,  4, 1 ),
+    daynum( 1964,  9, 1 ),
+    daynum( 1965,  1, 1 ),
+    daynum( 1965,  3, 1 ),
+    daynum( 1965,  7, 1 ),
+    daynum( 1965,  9, 1 ),
+    daynum( 1966,  1, 1 ),
+    daynum( 1968,  2, 1 ),
+    daynum( 1971, 12,31 ), # 14
 ]
 
 const _tai_minus_utc_1972_2012_daynum = [
-    daynumber( 1972, 1, 1 ), # 1
-    daynumber( 1972, 7, 1 ),
-    daynumber( 1973, 1, 1 ),
-    daynumber( 1974, 1, 1 ),
-    daynumber( 1975, 1, 1 ),
-    daynumber( 1976, 1, 1 ),
-    daynumber( 1977, 1, 1 ),
-    daynumber( 1978, 1, 1 ),
-    daynumber( 1979, 1, 1 ),
-    daynumber( 1980, 1, 1 ),
-    daynumber( 1981, 7, 1 ),
-    daynumber( 1982, 7, 1 ),
-    daynumber( 1983, 7, 1 ),
-    daynumber( 1985, 7, 1 ),
-    daynumber( 1988, 1, 1 ),
-    daynumber( 1990, 1, 1 ),
-    daynumber( 1991, 1, 1 ),
-    daynumber( 1992, 7, 1 ),
-    daynumber( 1993, 7, 1 ),
-    daynumber( 1994, 7, 1 ),
-    daynumber( 1996, 1, 1 ),
-    daynumber( 1997, 7, 1 ),
-    daynumber( 1999, 1, 1 ),
-    daynumber( 2006, 1, 1 ),
-    daynumber( 2009, 1, 1 ),
-    daynumber( 2012, 7, 1 ), # 26
+    daynum( 1972, 1, 1 ), # 1
+    daynum( 1972, 7, 1 ),
+    daynum( 1973, 1, 1 ),
+    daynum( 1974, 1, 1 ),
+    daynum( 1975, 1, 1 ),
+    daynum( 1976, 1, 1 ),
+    daynum( 1977, 1, 1 ),
+    daynum( 1978, 1, 1 ),
+    daynum( 1979, 1, 1 ),
+    daynum( 1980, 1, 1 ),
+    daynum( 1981, 7, 1 ),
+    daynum( 1982, 7, 1 ),
+    daynum( 1983, 7, 1 ),
+    daynum( 1985, 7, 1 ),
+    daynum( 1988, 1, 1 ),
+    daynum( 1990, 1, 1 ),
+    daynum( 1991, 1, 1 ),
+    daynum( 1992, 7, 1 ),
+    daynum( 1993, 7, 1 ),
+    daynum( 1994, 7, 1 ),
+    daynum( 1996, 1, 1 ),
+    daynum( 1997, 7, 1 ),
+    daynum( 1999, 1, 1 ),
+    daynum( 2006, 1, 1 ),
+    daynum( 2009, 1, 1 ),
+    daynum( 2012, 7, 1 ), # 26
 ];
 
 
@@ -118,11 +118,11 @@ const _tai_minus_utc_1972_2012_secs =
 
 function __tai_minus_utc(daynum::Int64) # function tai_minus_utc_1961_2012(daynum::Int64)
 
-  if      (daynum >= daynumber(2012, 7, 1))
+  if      (daynum >= daynum(2012, 7, 1))
       return 35
-  elseif  (daynum <  daynumber(1961, 1, 1))
+  elseif  (daynum <  daynum(1961, 1, 1))
       return  0
-  elseif  (daynum >= daynumber(1972, 1, 1))
+  elseif  (daynum >= daynum(1972, 1, 1))
       return _tai_minus_utc_1972_2012_secs[
                  search_gte( _tai_minus_utc_1972_2012_daynum, daynum )
                                           ]
@@ -155,33 +155,33 @@ tai_minus_utc_flt(daynum::Int64) = _tai_minus_utc(daynum, false)
 utc_minus_tai(daynum::Int64)     = _utc_minus_tai(daynum, true )
 utc_minus_tai_flt(daynum::Int64) = _utc_minus_tai(daynum, false)
 
-function resolve_secnumber(daynumber::Int64, secnumber::Int64)
-    if ((secnumber > 86401) || ((secnumber == 86401) && !is_leapsec_day(daynumber)))
-       secnumber -= 86401; daynumber += 1
+function resolve_secnumber(daynum::Int64, secnumber::Int64)
+    if ((secnumber > 86401) || ((secnumber == 86401) && !is_leapsec_day(daynum)))
+       secnumber -= 86401; daynum += 1
     elseif (secnumber == 86400)
-       secnumber = 0; daynumber += 1
-    elseif (secnumber < -1) 
-       secnumber += 86400; daynumber -= 1
-    elseif (secnumber == -1) 
-       if (is_leapsec_day(daynumber-1))
-          secnumber = 86401; daynumber -=1
+       secnumber = 0; daynum += 1
+    elseif (secnumber < -1)
+       secnumber += 86400; daynum -= 1
+    elseif (secnumber == -1)
+       if (is_leapsec_day(daynum-1))
+          secnumber = 86401; daynum -=1
        else
-          secnumber += 86400; daynumber -= 1
+          secnumber += 86400; daynum -= 1
        end
     end
-    (daynumber, secnumber)
+    (daynum, secnumber)
 end
 
-function utc_to_tai(daynumber::Int64,secnumber::Int64)
-    secnumber += tai_minus_utc(daynumber)
- 
-    resolve_secnumber(daynumber, secnumber)
+function utc_to_tai(daynum::Int64,secnumber::Int64)
+    secnumber += tai_minus_utc(daynum)
+
+    resolve_secnumber(daynum, secnumber)
 end
 
-function tai_to_utc(daynumber::Int64, secnumber::Int64)
-    secnumber -= tai_minus_utc(daynumber)
-    
-    resolve_secnumber(daynumber, secnumber)
+function tai_to_utc(daynum::Int64, secnumber::Int64)
+    secnumber -= tai_minus_utc(daynum)
+
+    resolve_secnumber(daynum, secnumber)
 end
 
 

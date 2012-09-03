@@ -7,7 +7,7 @@
 
 module JTM_config_etc
 
-export _maxYear, _minYear, _maxHour, _minHour,
+export _maxYear, _minYear, _maxHour, _minHour, _maxSec, _minSec,
        NaV, Unassignable, Unassigned,
        search_gte, checked_search_gte
 
@@ -19,6 +19,8 @@ const _minYear  = -3999
 const _maxHour  =  24*8
 const _minHour  = -_maxHour
 
+const _maxSec   =  86401
+const _minSec   = -_maxSec
 
 # 60*60 == 3600 seconds per hour
 # 15 minutes = 15*60 seconds == 900 seconds per 15 minutes
