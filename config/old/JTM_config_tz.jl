@@ -1,0 +1,102 @@
+# source : JTM_config_tz.jl (./extras/tm4julia/config/)
+# purpose: provides internal timezone related configuration settings
+#
+# author : Jeffrey A. Sarnoff
+# created: 2012-Jun-18 in New York, USA
+# revised: 2012-Aug-14
+
+
+
+export _tzname_to_tznum, _tznum_to_filepath,
+       my_tz_stdname_file, my_tz_preloads_file,
+       tz_basic_fname, tz_vects_fname,
+       TimezoneBasic, TimezoneVects, TimezoneBasicEmpty, TimezoneVectsEmpty,
+       _tz_basic, _tz_vects,
+       tznum_to_tz_basic_fname, tznum_to_tz_vects_fname,
+       tznum_to_tz_basic_file, tznum_to_tz_vects_file
+
+
+# IANA timezone name and number (enum value + 8) [+ some win tz names]
+# dictionaries: name -> num, num -> path (path holds tz's datafiles)
+#
+# read timezone names into numbers dictionary
+fio = open(jtm_tmzfile("_tzname_to_tznum.jld"),"r")
+_tzname_to_tznum = deserialize(fio);
+close(fio)
+# read timezone nums into filepaths dictionary
+fio = open(jtm_tmzfile("_tznum_to_filepath.jld"),"r")
+_tznum_to_filepath = deserialize(fio);
+close(fio)
+
+
+# these are best undisturbed
+
+#const my_tz_stdname_file  = JTM_dirpaths.jtm_cfgfile("tz/MyTimezone.txt")
+#const my_tz_preloads_file = JTM_dirpaths.jtm_cfgfile("tz/StartupZones.txt")
+
+
+const tz_basic_fname  = "tzbasic.jld"
+const tz_vects_fname  = "tzvects.jld"
+
+
+type TimezoneBasic
+  num::Int64
+  utc2std::Int64
+  utc2dst::Int64
+  name::ASCIIString
+  stdabbr::ASCIIString
+  dstabbr::ASCIIString
+
+  TimezoneBasic() = new(typemin(Int64),typemin(Int64),typemin(Int64),"","","");
+  TimezoneBasic(num::Int64,utc2std::Int64,utc2dst::Int64, name::ASCIIString,stdabbr::ASCIIString,dstabbr::ASCIIString) =
+     new(num,utc2std,utc2dst,name,stdabbr,dstabbr);
+  TimezoneBasic(num::Int32,utc2std::Int32,utc2dst::Int32, name::ASCIIString,stdabbr::ASCIIString,dstabbr::ASCIIString) =
+     new(int64(num),int64(utc2std),int64(utc2dst),name,stdabbr,dstabbr);
+
+end
+
+
+type TimezoneVects
+  utcsecs::Vector{Int64}
+  utc2lcl::Vector{Int64}
+  isitdst::Vector{Int64}
+
+  TimezoneVects() = new([typemin(Int64)],[typemin(Int64)],[typemin(Int64)])
+  TimezoneVects(utcsecs::Vector{Int64},utc2lcl::Vector{Int64},isitdst::Vector{Int64}) = new(utcsecs,utc2lcl,isitdst)
+  TimezoneVects(utcsecs::Vector{Int32},utc2lcl::Vector{Int32},isitdst::Vector{Int32}) = new(int64(utcsecs),int64(utc2lcl),int64(isitdst))
+end
+
+
+const TimezoneBasicEmpty = TimezoneBasic()
+const TimezoneVectsEmpty = TimezoneVects()
+
+_tz_basic = fill(TimezoneBasic(),511)
+_tz_vects = fill(TimezoneVects(),511)
+
+
+function tznum_to_tz_basic_fname(tznum::Integer)
+  strcat(_tznum_to_filepath[tznum], tz_basic_fname)
+end
+
+function tznum_to_tz_basic_file(tznum::Integer)
+  try
+     open( tznum_to_tz_basic_fname(tznum), "r" )
+  catch e
+     error("Cannot open $(tznum_to_tz_basic_fname(tznum)):  $(e)")
+  end
+end
+
+
+function tznum_to_tz_vects_fname(tznum::Integer)
+  strcat(_tznum_to_filepath[tznum], tz_vects_fname)
+end
+
+function tznum_to_tz_vects_file(tznum::Integer)
+  try
+     open( tznum_to_tz_vects_fname(tznum), "r" )
+  catch e
+     error("Cannot open $(tznum_to_tz_vects_fname(tznum)):  $(e)")
+  end
+end
+
+

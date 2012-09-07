@@ -116,11 +116,11 @@ const _tai_minus_utc_1972_2012_secs =
 
 function __tai_minus_utc(daynum::Int64) # function tai_minus_utc_1961_2012(daynum::Int64)
 
-  if      (daynum >= 2342117) # ymd_to_daynum(2012, 7, 1))
+  if      (daynum >= daynum(2012, 7, 1))
       return 35
-  elseif  (daynum <  2323308) # ymd_to_daynum(1961, 1, 1))
+  elseif  (daynum <  ymd_to_daynum(1961, 1, 1))
       return  0
-  elseif  (daynum >= 2327325) # ymd_to_daynum(1972, 1, 1))
+  elseif  (daynum >= daynum(1972, 1, 1))
       return _tai_minus_utc_1972_2012_secs[
                  search_gte( _tai_minus_utc_1972_2012_daynum, daynum )
                                           ]

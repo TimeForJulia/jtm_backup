@@ -1,153 +1,215 @@
-# source : jtm.jl (./extras/tm4julia/)
-# purpose: initialize date and time facilities
+# source : jtm  (./jtm/)
+#
+# purpose: Julia's temporal gate
+#
+# offers:
 #
 # author : Jeffrey A. Sarnoff
-# created: 2012-Aug-14 in New York, USA
-# revised: 2012-Sep-02
-
-
-# we place these entities in the Main user namespace
-#    the full directory path to the root dir for tm4julia
-#    the date, time, datetime and timezone input acceptance
+# contact: jeffrey(dot)sarnoff(at)gmail
 #
-
-# provide full directory paths for accessing facility files
+# created: 2012-Sep-04 in New York, USA
 #
+#
+# license: This material is available to Julia without encumbrance.
+# Copyright (c) 2012 by Jeffrey A. Sarnoff.  All Rights Reserved.
 
 
-TM4JULIA_HOME = strcat(JULIA_HOME[1:(end-7)],"extras/tm4julia")
+module _jtm
 
-if (stat( "$(TM4JULIA_HOME)/tm4julia.jl" ).mode==0)
-    TM4JULIA_HOME = strcat(readchomp(`pwd`),"/lib/julia/extras/tm4julia")
-    if (stat( "$(TM4JULIA_HOME)/tm4julia.jl" ).mode==0)
-       error("Cannot find file \"tm4julia.jl\".")
-    end
-end
-export TM4JULIA_HOME
-
-
-module Tm4Julia
-
-export TM4JULIA_HOME,
-       jtm_srcfile, jtm_typfile, jtm_datfile,
-       jtm_tmzfile, jtm_cfgfile, jtm_utlfile,
-       jtm_datpath, jtm_tmzpath, jtm_cfgpath,
-       _tzname_to_tznum, _tzs_inmem, _tz_basic, _tz_vects,
-       _utc_tz_name, _utc_tz_num, _tai_tz_name, _tai_tz_num,
-       _local_tz_name, _local_tz_num
-
+# autoexports all from jtm_filepath.jl
 
 import Base.*
-import Main.TM4JULIA_HOME
 
+# where is Julia's top level (git clone dir): ./julia
+# where is Julia's facilitative subdirectory: ./julia/<subdir>
+# where is the local root of Time for Julia : ./julia/<subdir>/jtm
 
-# access to facility files using paths relative to TM4JULIA_HOME
-include("$(TM4JULIA_HOME)/config/JTM_dirpaths.jl");
+const JULIA_TOP_DIR = strcat(split(JULIA_HOME,"julia")[1],"julia")
+const JULIA_SUB_DIR = "$(JULIA_TOP_DIR)/extras"
+#const JULIA_JTM_DIR = "$(JULIA_SUB_DIR)/jtm"
+const JULIA_JTM_DIR = "/home/jas/Desktop/tm4julia"
 
-include(jtm_cfgfile("JTM_config.jl"))
-include(jtm_utlfile("JTM_util.jl"))
+include("$(JULIA_JTM_DIR)/jtm_filepath.jl")     # simplified access to facility elements
 
-#import JTM_string_utl.*
-
-# precache timezones that are likely to be used
-# (user prespecified aor from user history)
-#   _tzs_inmem tracks which timezones have
-#   basic & transition info ready in memory
-#   as entries in _tz_basic[] and _tz_vects[]
-#
-fio=open(my_tz_preloads_file,"r");
-tzs=split(readchomp(fio),'\n');
-if (tzs[end] == "")
-  tzs = tzs[1:(end-1)]
-end
-close(fio)
-
-# ensure _local_tz_name, _utc_tz_name, _tai_tz_name are included
-if (!any(_local_tz_name .== tzs))  push(tzs, _local_tz_name)  end
-if (!any(_utc_tz_name .== tzs))    push(tzs, _utc_tz_name)    end
-if (!any(_tai_tz_name .== tzs))    push(tzs, _tai_tz_name)    end
-
-# prepare timezones for use
-
-_tzs_inmem = Dict{Union(ASCIIString,Int64),Union(ASCIIString,Int64)}(length(tzs))
-
-for tzname in tzs
-  if (strlen(tzname) > 0)
-     try
-       begin
-         tznum = _tzname_to_tznum[ tzname ]
-         fpath = _tznum_to_filepath[ tznum ]
-         basic = strcat(fpath,tz_basic_fname)
-         vects = strcat(fpath,tz_vects_fname)
-         fio = open(basic); basic=deserialize(fio)(); close(fio);
-         fio = open(vects); vects=deserialize(fio)(); close(fio);
-         _tz_basic[tznum] = basic  # q.v. jtm_cfgfile("config_tz.jl")
-         _tz_vects[tznum] = vects  # q.v. jtm_cfgfile("config_tz.jl")
-         #
-         _tzs_inmem[tzname] = tznum
-         _tzs_inmem[tznum]  = tzname
-         # for timezones named <region>/<city>, add as a synonym
-         # that is the <city> name itself (without "<region>/")
-         if (strchr(tzname,'/')>0)
-           nm = split(tzname,'/')[end]
-           _tzs_inmem[ nm  ] = tznum
-           # for cities named <city_name> or <city-name>, add as a synonym
-           # that is the city name camelcased ("AbcDef")
-           if     (strchr(nm,'_')>0)
-               _tzs_inmem[ camelcase(nm,'_') ] = tznum
-           elseif (strchr(nm,'-')>0)
-               _tzs_inmem[ camelcase(nm,'-') ] = tznum
-           end
-         end
-       end # begin
-     catch e
-        error("Cannot prepare timezones for use.\n\t$(e)\n")
-     end # try
-  end
-end
-
-end # module Tm4Julia
-
-
-
-module grain
-
-import Base.*
-import Tm4Julia.*
-
-# Time Index Numbers and TimeSpan Duration Numbers
-include(jtm_typfile("JTM_BitInts.jl"))
-#
-# Sequential Days at Day and Second resolution
-# UTC and TAI time measures and interconversion
-include(jtm_srcfile("days/JTM_days.jl"))
-include(jtm_srcfile("times/UTCandTAI.jl"))
 
 end # module
 
 
 
-module jtm # JTM
-
-export DayNum, SecNum, DaysNum, SecsNum
+module jtm
 
 import Base.*
-import Tm4Julia.*
-import grain # seqtm #Chrono # JTM_days
-
-DayNum = grain.DayNum
-SecNum = grain.SecNum
-DaysNum = grain.DaysNum
-SecsNum = grain.SecsNum
-
-include(jtm_srcfile("times/cume_leapsecs.jl"))
-include(jtm_srcfile("io/JTM_date_in.jl"))
-
-end # module JTM
+import _jtm.*
 
 
-import jtm # JTM
+include(jtm_utlfile("utl_string"))              # more Char and ASCIIString ops
+include(jtm_utlfile("utl_numstr"))              # assist with integer subformats
+include(jtm_utlfile("utl_search"))              # search tuned for internal tables & logic
+include(jtm_utlfile("utl_values"))              # sentinal-like values
+include(jtm_utlfile("utl_ariths"))              # arithmetic & algebraic basics
+
+                                                # .. var = "<file>"; cfg info in <file>
+include(jtm_cfgfile("cfg_system"))              # region timezone, timezones to preload
+include(jtm_cfgfile("cfg_user"))                # remote timezone, timezones to preload
+
+include(jtm_cfgfile("cfg_tzsys"))               # timezone management data dicts
+include(jtm_cfgfile("cfg_lcltz"))               # ascertain local timezone
+include(jtm_cfgfile("cfg_tzmem"))               # preload specified timezones
+
+include(jtm_cfgfile("cfg_etc"))                 # conversion constants, other parameters
+
+include(jtm_typfile("TimeIntegers"))            # bitstypes
+include(jtm_typfile("TimeIntArith"))
+
+typealias Year Int64
+typealias Month Int64
+typealias Day Int64
+typealias Hour Int64
+typealias Minute Int64
+typealias Second Int64
+typealias Seconds Int64
+                                                # daynumber (proleptic Gregorian + year 0)
+include(jtm_dayfile("daysecnum"))               # ymd <-> daynumber <-> unix time_t secs
+include(jtm_dayfile("leapyears"))               # Julian, Gregorian and Common
+include(jtm_dayfile("monthdays"))               #  (Common uses 1582 if no switchover year is given)
+include(jtm_dayfile("yeardays"))                #  !!TODO!! accept switchover date and days gapped
+
+include(jtm_timfile("UTCandTAI"))               # leap seconds and interconversion
+include(jtm_dayfile("unxsecnum"))               # Unix Epoch interconversion
 
 
-#  jtm.grain.UTCminusTAI(jtm.grain.DayNum(jtm.grain.daynum(1992,11,05)))
+# timespan calcs
+#include(jtm_dayfile("spanvals"))
 
+
+# Time Index Numbers and TimeSpan Duration Numbers
+#include(jtm_typfile("JTM_BitInts.jl"))
+#
+# Sequential Days at Day and Second resolution
+# UTC and TAI time measures and interconversion
+#include(jtm_srcfile("days/JTM_days.jl"))
+#include(jtm_srcfile("times/UTCandTAI.jl"))
+
+end # module jtm
+
+#
+# # import an accessible perspective on Time for Julia
+#
+
+import jtm.daynum_to_secnum
+import jtm.secnum_to_daynum
+
+import jtm.ymd_to_daynum
+import jtm.ymd_to_secnum
+#import jtm.ymd_to_daysec
+import jtm.daynum_to_ymd
+import jtm.secnum_to_ymd
+#import jtm.daysec_to_ymd
+
+import jtm.UTC_to_TAI
+import jtm.TAI_to_UTC
+
+                              # here, parens group fields, the are not tuples
+
+# import jtm.Year               # type
+# import jtm.year               # realizer
+# import jtm._yr                # grain
+# import jtm.Month              # type
+# import jtm.month              # realizer
+# import jtm._mo                # grain
+# import jtm.Day                # type
+# import jtm.day                # realizer
+# import jtm._d                 # grain
+# import jtm.Hour               # type
+# import jtm.hour               # realizer
+# import jtm._hr                # grain
+# import jtm.Minute             # type
+# import jtm.minute             # realizer
+# import jtm._mi                # grain
+# import jtm.Second             # type
+# import jtm.second             # realizer
+# import jtm._s                 # grain
+
+
+# import jtm.YMDHMS             # type
+# import jtm.ymdhms             # realizer
+# import jtm.YMD                # type
+# import jtm.ymd                # realizer
+# import jtm.HMS                # type
+# import jtm.hms                # realizer
+
+# import jtm.DayNumber          # bitstype
+# import jtm.Daynum             # realizer
+# import jtm.SecNumber          # bitstype
+# import jtm.Secnum             # realizer
+
+# import jtm.daynum_to_secnum   # DayNumber --> SecNumber
+# import jtm.secnum_to_daynum   # SecNumber --> DayNumber
+# import jtm.secnum_to_secrem   # SecNumber --> Seconds   (SecNumber = DayNumber+Seconds)
+
+# import jtm.ymd_to_daynum      # (Year,Month,Day) --> DayNumber
+# import jtm.daynum_to_ymd      # DayNumber --> (Year,Month,Day)
+# import jtm.ymdhms_to_secnum   # ((Year,Month,Day), (Hour,Min,Sec)) --> SecNumber
+# import jtm.secnum_to_ymdhms   # SecNumber --> ((Year,Month,Day), (Hour,Min,Sec))
+# import jtm.ymdsec_to_secnum   # ((Year,Month,Day), Seconds) --> SecNumber
+# import jtm.secnum_to_ymdsec   # SecNumber --> ((Year,Month,Day), Seconds)
+# import jtm.dnmsec_to_secnum   # (DayNumber, Seconds) --> SecNumber
+# import jtm.secnum_to_dnmsec   # SecNumber --> (DayNumber, Seconds)
+
+# import jtm.ymdz_to_daynumz    # (Year,Month,Day,Tz) --> (DayNumber,Tz)
+# import jtm.daynumz_to_ymdz    # (DayNumber,Tz) --> (Year,Month,Day,Tz)
+# import jtm.ymdhmsz_to_secnumz # ((Year,Month,Day), (Hour,Min,Sec), Tz) --> (SecNumber,Tz)
+# import jtm.secnumz_to_ymdhmsz # (SecNumber,Tz) --> ((Year,Month,Day),(Hour,Min,Sec),Tz)
+# import jtm.ymdsecz_to_secnumz # ((Year,Month,Day), Seconds, Tz) --> (SecNumber,Tz)
+# import jtm.secnumz_to_ymdsecz # (SecNumber,Tz) --> ((Year,Month,Day), Seconds, Tz)
+# import jtm.dnmsecz_to_secnumz # (DayNumber, Seconds, Tz) --> (SecNumber, Tz)
+# import jtm.secnumz_to_dnmsecz # (SecNumber,Tz) --> (DayNumber, Seconds, Tz)
+
+
+
+# import jtm.LocalTimezone
+# import jtm.UsingTimezone
+# import jtm.UsingLeapsecs
+
+                    # date and time-of-day
+                    # with timezone (explicit or implicitly local)
+
+# import jtm.date     # calendar date + timezone
+# import jtm.datm     # calender date + clock time + timezone
+
+# import jtm.ymdhmsz  # requires explicit timezone
+# import jtm.ymdz
+# import jtm.hmsz
+
+# import jtm.ymdhms   # allows explicit timezone, local is default
+# import jtm.ymd
+# import jtm.hms
+
+                    # duration in date and time-of-day elements
+# import jtm.datespan #
+# import jtm.datmspan
+
+# import jtm.ts_ymdhms
+# import jtm.ts_ymd
+# import jtm.ts_hms
+
+                     # datetime subselectors
+# import jtm.year
+# import jtm.month
+# import jtm.day
+# import jtm.hour
+# import jtm.minute
+# import jtm.second
+                     # timespan subselectors
+# import jtm.years
+# import jtm.months
+# import jtm.days
+# import jtm.hours
+# import jtm.minutes
+# import jtm.seconds
+
+
+
+
+
+# eof #

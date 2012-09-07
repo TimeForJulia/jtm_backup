@@ -34,98 +34,73 @@
 #    by a constant rate."
 
 
-# Proleptic TAI is a confusing way to specify an epoch, but is there a less confusing way?
-# Maybe "the number of seconds since
-#   1970-01-01 00:00:08.000082 UT (i.e. 1970-01-01 00:00:00 TAI, if TAI had existed then)"?
+
+#  "TAI-UTC was 8.000082 seconds at the point of the POSIX Epoch,
+#   i.e. that the POSIX Epoch 1970-01-01 00:00:00.000000 UTC 
+#   is equivalent to          1970-01-01 00:00:08.000082 TAI 
+#   (exactly, by definition)"
+#
+#  - Paul Eggert eggert at twinsun.com, Mon Dec 4 18:00:51 UTC 2000
+#    http://mm.icann.org/pipermail/tz/2000-December/011262.html
+#
+#    Proleptic TAI is a confusing way to specify an epoch, but is there a less confusing way?
+#    "the number of seconds since 1970-01-01 00:00:08.000082 UT (1970-01-01 00:00:00 TAI,
+#     if TAI had existed then)"?
+#
+#  - Paul Eggert eggert at twinsun.com
+#
+#  TECHNOTE:  IANA library uses 1970-Jan-01 00:00:10.000000 TAI 
+
+# http://www.csgnetwork.com/timetaidispcalc.html
+# UTC 2012-09-06 02:56:00
+# TAI 2012-09-06 02:56:33
+
+export UTC_to_TAI, TAI_to_UTC, TCU_to_UTC, UTC_to_TCU, TCU_to_TAI, TAI_to_TCU
 
 
-# module UTCandTAI
-
-export TAIminusUTC, UTCminusTAI
-
-import Base.*
-import Tm4Julia.*
-
-#include( JTM_dirpaths.jtm_typfile("TimeIndex.jl") )
-# import JTM.DayNumber
-# import JTM.SecNumber
-
-#EPOCH_TAI = daynum(1970,1,1)
-#EPOCH_TAI_DELTASECS2UT = 08.000082
+# data from IERS series7 publication
 
 
-# tai_minus_utc_pre1972 = {
-#   daynum(1961, 1,1) function(daynum) 1.4228180 + (daynum - 2323308)*0.0012960 end
-#   daynum(1961, 8,1) function(daynum) 1.3728180 + (daynum - 2323308)*0.0012960 end
-#   daynum(1962, 1,1) function(daynum) 1.8458580 + (daynum - 2323673)*0.0011232 end
-#   daynum(1963,10,1) function(daynum) 1.9458580 + (daynum - 2323673)*0.0011232 end
-#   daynum(1964, 1,1) function(daynum) 3.2401300 + (daynum - 2324769)*0.0012960 end
-#   daynum(1964, 4,1) function(daynum) 3.3401300 + (daynum - 2324769)*0.0012960 end
-#   daynum(1964, 9,1) function(daynum) 3.4401300 + (daynum - 2324769)*0.0012960 end
-#   daynum(1965, 1,1) function(daynum) 3.5401300 + (daynum - 2324769)*0.0012960 end
-#   daynum(1965, 3,1) function(daynum) 3.6401300 + (daynum - 2324769)*0.0012960 end
-#   daynum(1965, 7,1) function(daynum) 3.7401300 + (daynum - 2324769)*0.0012960 end
-#   daynum(1965, 9,1) function(daynum) 3.8401300 + (daynum - 2324769)*0.0012960 end
-#   daynum(1966, 1,1) function(daynum) 4.3131700 + (daynum - 2325134)*0.0025920 end
-#   daynum(1968, 2,1) function(daynum) 4.2131700 + (daynum - 2325134)*0.0025920 end
-#   #daynum(1971,12,31) function(daynum) 4.2131700 + (daynum - 2323308)*0.0025920 end
-# };
-
-# tai_minus_utc_1961_1972_daynum = int64(tai_minus_utc_pre1972[:,1])
-# tai_minus_utc_1961_1972_function  = convert(Vector{Function},(tai_minus_utc_pre1972[:,2]))
-
-
-# TAIminusUTC_pre1972_daynum = [
-#   daynum(1961, 1,1)
-#   daynum(1961, 8,1)
-#   daynum(1962, 1,1)
-#   daynum(1963,10,1)
-#   daynum(1964, 1,1)
-#   daynum(1964, 4,1)
-#   daynum(1964, 9,1)
-#   daynum(1965, 1,1)
-#   daynum(1965, 3,1)
-#   daynum(1965, 7,1)
-#   daynum(1965, 9,1)
-#   daynum(1966, 1,1)
-#   daynum(1968, 2,1)
-#   daynum(1971,12,31) # max for this
-# ]
-
-const TAIminusUTC_pre1972_daynum = int64([
-  2323308,
-  2323520,
-  2323673,
-  2324311,
-  2324403,
-  2324494,
-  2324647,
-  2324769,
-  2324828,
-  2324950,
-  2325012,
-  2325134,
-  2325895
-  # 2327324 # 1971-12-31 (max for this)
+const 
+TAIminusUTC_pre1972_daynum = int64([
+  2323308,        #   daynum(1961, 1,1)
+  2323520,        #   daynum(1961, 8,1)
+  2323673,        #   daynum(1962, 1,1)
+  2324311,        #   daynum(1963,10,1)
+  2324403,        #   daynum(1964, 1,1)
+  2324494,        #   daynum(1964, 4,1)
+  2324647,        #   daynum(1964, 9,1)
+  2324769,        #   daynum(1965, 1,1)
+  2324828,        #   daynum(1965, 3,1)
+  2324950,        #   daynum(1965, 7,1)
+  2325012,        #   daynum(1965, 9,1)
+  2325134,        #   daynum(1966, 1,1)
+  2325895         #   daynum(1968, 2,1)
+  # 2327324       #   daynum(1971,12,31) # max for this-12-31 (max for this)
 ])
 
-const TAIminusUTC_pre1972_secnumTAI = int64([
- 200733811200,
- 200752128000,
- 200765347200,
- 200820470400,
- 200828419200,
- 200836281600,
- 200849500800,
- 200860041600,
- 200865139200,
- 200875680000,
- 200881036800,
- 200891577600,
- 200957328000
+
+
+const
+TAIminusUTC_pre1972_secnumTAI = int64([
+ 200733811200,    #   daynum(1961, 1,1) * 86400
+ 200752128000,    #   daynum(1961, 8,1) * 86400
+ 200765347200,    #   daynum(1962, 1,1) * 86400
+ 200820470400,    #   daynum(1963,10,1) * 86400
+ 200828419200,    #   daynum(1964, 1,1) * 86400
+ 200836281600,    #   daynum(1964, 4,1) * 86400
+ 200849500800,    #   daynum(1964, 9,1) * 86400
+ 200860041600,    #   daynum(1965, 1,1) * 86400
+ 200865139200,    #   daynum(1965, 3,1) * 86400
+ 200875680000,    #   daynum(1965, 7,1) * 86400
+ 200881036800,    #   daynum(1965, 9,1) * 86400
+ 200891577600,    #   daynum(1966, 1,1) * 86400
+ 200957328000     #   daynum(1968, 2,1) * 86400
 ])
 
-const TAIminusUTC_pre1972_daynumfn = [
+
+const 
+TAIminusUTC_pre1972_daynumfn = [
   daynum -> 1.4228180 + (daynum - 2323308)*0.0012960,
   daynum -> 1.3728180 + (daynum - 2323308)*0.0012960,
   daynum -> 1.8458580 + (daynum - 2323673)*0.0011232,
@@ -143,88 +118,92 @@ const TAIminusUTC_pre1972_daynumfn = [
 ]
 
 
-const TAIminusUTC_pre1972_secnumfn = [
-  secnum -> 1.4228180 + (secnum - 2323308*86400)*0.0012960,
-  secnum -> 1.3728180 + (secnum - 2323308*86400)*0.0012960,
-  secnum -> 1.8458580 + (secnum - 2323673*86400)*0.0011232,
-  secnum -> 1.9458580 + (secnum - 2323673*86400)*0.0011232,
-  secnum -> 3.2401300 + (secnum - 2324769*86400)*0.0012960,
-  secnum -> 3.3401300 + (secnum - 2324769*86400)*0.0012960,
-  secnum -> 3.4401300 + (secnum - 2324769*86400)*0.0012960,
-  secnum -> 3.5401300 + (secnum - 2324769*86400)*0.0012960,
-  secnum -> 3.6401300 + (secnum - 2324769*86400)*0.0012960,
-  secnum -> 3.7401300 + (secnum - 2324769*86400)*0.0012960,
-  secnum -> 3.8401300 + (secnum - 2324769*86400)*0.0012960,
-  secnum -> 4.3131700 + (secnum - 2325134*86400)*0.0025920,
-  secnum -> 4.2131700 + (secnum - 2325134*86400)*0.0025920,
-  # secnum -> 4.2131700 + (secnum - 2323308*86400)*0.0025920,   #secnum(1971,12,31)
+const
+TAIminusUTC_pre1972_secnumfn = [
+  secnum -> 1.4228180 + ((secnum - 2323308*86400)/86400)*0.0012960,
+  secnum -> 1.3728180 + ((secnum - 2323308*86400)/86400)*0.0012960,
+  secnum -> 1.8458580 + ((secnum - 2323673*86400)/86400)*0.0011232,
+  secnum -> 1.9458580 + ((secnum - 2323673*86400)/86400)*0.0011232,
+  secnum -> 3.2401300 + ((secnum - 2324769*86400)/86400)*0.0012960,
+  secnum -> 3.3401300 + ((secnum - 2324769*86400)/86400)*0.0012960,
+  secnum -> 3.4401300 + ((secnum - 2324769*86400)/86400)*0.0012960,
+  secnum -> 3.5401300 + ((secnum - 2324769*86400)/86400)*0.0012960,
+  secnum -> 3.6401300 + ((secnum - 2324769*86400)/86400)*0.0012960,
+  secnum -> 3.7401300 + ((secnum - 2324769*86400)/86400)*0.0012960,
+  secnum -> 3.8401300 + ((secnum - 2324769*86400)/86400)*0.0012960,
+  secnum -> 4.3131700 + ((secnum - 2325134*86400)/86400)*0.0025920,
+  secnum -> 4.2131700 + ((secnum - 2325134*86400)/86400)*0.0025920,
+  # secnum -> 4.2131700 + ((secnum - 2323308*86400)/86400)*0.0025920,   #secnum(1971,12,31)
 ]
 
 
 # daynum at 0h when cumulative leap seconds has just changed
 # this daynum is the same for TAI and UTC
-const TAIminusUTC_1972fwd_daynum = int64([
-  2327325,
-  2327507,
-  2327691,
-  2328056,
-  2328421,
-  2328786,
-  2329152,
-  2329517,
-  2329882,
-  2330247,
-  2330794,
-  2331159,
-  2331524,
-  2332255,
-  2333169,
-  2333900,
-  2334265,
-  2334812,
-  2335177,
-  2335542,
-  2336091,
-  2336638,
-  2337187,
-  2339744,
-  2340840,
-  2342117,
+const 
+TAIminusUTC_1972fwd_daynum = int64([
+  2327325,     #  daynum(1972,01,01)
+  2327507,     #  daynum(1972,07,01)
+  2327691,     #  daynum(1973,01,01)
+  2328056,     #  daynum(1974,01,01)
+  2328421,     #  daynum(1975,01,01)
+  2328786,     #  daynum(1976,01,01)
+  2329152,     #  daynum(1977,01,01)
+  2329517,     #  daynum(1978,01,01)
+  2329882,     #  daynum(1979,01,01)
+  2330247,     #  daynum(1980,01,01)
+  2330794,     #  daynum(1981,07,01)
+  2331159,     #  daynum(1982,07,01)
+  2331524,     #  daynum(1983,07,01)
+  2332255,     #  daynum(1985,07,01)
+  2333169,     #  daynum(1988,01,01)
+  2333900,     #  daynum(1990,01,01)
+  2334265,     #  daynum(1991,01,01)
+  2334812,     #  daynum(1992,07,01)
+  2335177,     #  daynum(1993,07,01)
+  2335542,     #  daynum(1994,07,01)
+  2336091,     #  daynum(1996,01,01)
+  2336638,     #  daynum(1997,07,01)
+  2337187,     #  daynum(1999,01,01)
+  2339744,     #  daynum(2006,01,01)
+  2340840,     #  daynum(2009,01,01)
+  2342117,     #  daynum(2012,07,01)
 ])
 
 # TAI secnum at 0h when cumulative leap seconds has just changed
-const TAIminusUTC_1972fwd_secnumTAI = int64([
-  201080880000,
-  201096604800,
-  201112502400,
-  201144038400,
-  201175574400,
-  201207110400,
-  201238732800,
-  201270268800,
-  201301804800,
-  201333340800,
-  201380601600,
-  201412137600,
-  201443673600,
-  201506832000,
-  201585801600,
-  201648960000,
-  201680496000,
-  201727756800,
-  201759292800,
-  201790828800,
-  201838262400,
-  201885523200,
-  201932956800,
-  202153881600,
-  202248576000,
-  202358908800,
+const 
+TAIminusUTC_1972fwd_secnumTAI = int64([
+  201080880000,     #  daynum(1972,01,01) * 86400
+  201096604800,     #  daynum(1972,07,01) * 86400
+  201112502400,     #  daynum(1973,01,01) * 86400
+  201144038400,     #  daynum(1974,01,01) * 86400
+  201175574400,     #  daynum(1975,01,01) * 86400
+  201207110400,     #  daynum(1976,01,01) * 86400
+  201238732800,     #  daynum(1977,01,01) * 86400
+  201270268800,     #  daynum(1978,01,01) * 86400
+  201301804800,     #  daynum(1979,01,01) * 86400
+  201333340800,     #  daynum(1980,01,01) * 86400
+  201380601600,     #  daynum(1981,07,01) * 86400
+  201412137600,     #  daynum(1982,07,01) * 86400
+  201443673600,     #  daynum(1983,07,01) * 86400
+  201506832000,     #  daynum(1985,07,01) * 86400
+  201585801600,     #  daynum(1988,01,01) * 86400
+  201648960000,     #  daynum(1990,01,01) * 86400
+  201680496000,     #  daynum(1991,01,01) * 86400
+  201727756800,     #  daynum(1992,07,01) * 86400
+  201759292800,     #  daynum(1993,07,01) * 86400
+  201790828800,     #  daynum(1994,07,01) * 86400
+  201838262400,     #  daynum(1996,01,01) * 86400
+  201885523200,     #  daynum(1997,07,01) * 86400
+  201932956800,     #  daynum(1999,01,01) * 86400
+  202153881600,     #  daynum(2006,01,01) * 86400
+  202248576000,     #  daynum(2009,01,01) * 86400
+  202358908800,     #  daynum(2012,07,01) * 86400
 ])
 
 
 # cumulative leap seconds at 0h of TAIminusUTC_1972fwd_daynum
-const TAIminusUTC_1972fwd_sec = int64([
+const 
+TAIminusUTC_1972fwd_sec = int64([
   10 ,
   11 ,
   12 ,
@@ -253,7 +232,19 @@ const TAIminusUTC_1972fwd_sec = int64([
   35 ,
 ])
 
-
+# declared leapseconds, not the pre-1972 computed values
+# incorporates initial 10second offset
+#
+function CumeLeapseconds(daynum::DayNumber)
+    daynum = convert(Int64,daynum)
+    if (daynum > 2342117)           #  daynum(2012,7,1)
+       _leapsecs
+    elseif (daynum >= 2327325)      # daynum(1972,1,1)
+       TAIminusUTC_1972fwd_sec[ search_gte(TAIminusUTC_1972fwd_daynum, daynum) ]  # 1972-1-1 .. present+
+    else
+       0
+    end
+end
 
 # returns SI seconds
 function TAIminusUTC(daynum::DayNumber)
@@ -275,6 +266,7 @@ end
 UTCminusTAI(daynum::DayNumber) = -(TAIminusUTC(daynum))
 
 
+
 # returns SI seconds
 function TAIminusUTC(secnum::SecNumber)
 
@@ -287,14 +279,34 @@ function TAIminusUTC(secnum::SecNumber)
    elseif (secnum >= 2327325*86400) # secnum(1972,1,1)
       TAIminusUTC_1972fwd_sec[ search_gte(TAIminusUTC_1972fwd_secnumTAI, secnum) ]  # 1972-1-1 .. present+
    else # 1962-1-1 .. 1971-12-31
-      TAIminusUTC_pre1972_secnumfn[search_gte(TAIminusUTC_pre1972_secnum, secnum)](secnum)
+      TAIminusUTC_pre1972_secnumfn[search_gte(TAIminusUTC_pre1972_secnumTAI, secnum)](secnum)
    end
 
 end
 
 UTCminusTAI(secnum::SecNumber) = -(TAIminusUTC(secnum))
+ 
 
+#   UTC --> TAI:  UTC + (TAI-UTC) == TAI == UTC - (UTC-TAI)
+#   TAI --> UTC:  TAI + (UTC-TAI) == UTC == TAI - (TAI-UTC)
 
+UTC_to_TAI(daynum::DayNumber) = daynum + TAIminusUTC(daynum)
+UTC_to_TAI(secnum::SecNumber) = secnum + TAIminusUTC(secnum)
+
+TAI_to_UTC(daynum::DayNumber) = daynum - TAIminusUTC(daynum)
+TAI_to_UTC(secnum::SecNumber) = secnum - TAIminusUTC(secnum)
+
+# UTC without the leapseconds .. returns SecNumber
+
+UTC_to_CTU(daynum::DayNumber) = daynum_to_secnum(daynum) - CumeLeapseconds(daynum)
+UTC_to_CTU(secnum::SecNumber) = secnum - CumeLeapseconds(secnum_to_daynum(secnum))
+CTU_to_UTC(daynum::DayNumber) = daynum_to_secnum(daynum) + CumeLeapseconds(daynum)
+CTU_to_UTC(secnum::SecNumber) = secnum + CumeLeapseconds(secnum_to_daynum(secnum))
+
+CTU_to_TAI(daynum::DayNumber) = UTC_to_TAI(CTU_to_UTC(daynum))
+CTU_to_TAI(secnum::SecNumber) = UTC_to_TAI(CTU_to_UTC(secnum))
+TAI_to_CTU(daynum::DayNumber) = UTC_to_CTU(TAI_to_UTC(daynum))
+TAI_to_CTU(secnum::SecNumber) = UTC_to_CTU(TAI_to_UTC(secnum))
 
 
 # end # module

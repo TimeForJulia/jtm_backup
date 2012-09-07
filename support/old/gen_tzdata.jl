@@ -1,97 +1,47 @@
-
-module _jtm
-
-# autoexports all from jtm_filepath.jl 
-
-export JULIA_JTM_DIR
-import Base.*
-
-# where is Julia's top level (git clone dir): ./julia
-# where is Julia's facilitative subdirectory: ./julia/<subdir>
-# where is the local root of Time for Julia : ./julia/<subdir>/jtm
-
-const JULIA_TOP_DIR = strcat(split(JULIA_HOME,"julia")[1],"julia")
-const JULIA_SUB_DIR = "$(JULIA_TOP_DIR)/extras"
-#const JULIA_JTM_DIR = "$(JULIA_SUB_DIR)/jtm"
-const JULIA_JTM_DIR = "/home/jas/Desktop/tm4julia"
-
-include("$(JULIA_JTM_DIR)/jtm_filepath.jl")     # simplified access to facility elements
-
-end # module
-
-module gen_tzdata
-
-import Base.*
-import _jtm.*
-
-#JULIA_JTM_DIR="/home/jas/Desktop/julia/extras/tm4julia"
-#JULIA_JTM_DIR="/home/jas/Desktop/tm4julia"
-#export JULIA_JTM_DIR
-#JULIA_JTM_DIR=JULIA_JTM_DIR
-#include("$(JULIA_JTM_DIR)/jtm_filepath.jl")
-
-
-
-include(jtm_utlfile("utl_string"))              # more Char and ASCIIString ops
-include(jtm_utlfile("utl_numstr"))              # assist with integer subformats
-include(jtm_utlfile("utl_search"))              # search tuned for internal tables & logic
-include(jtm_utlfile("utl_values"))              # sentinal-like values
-
-                                                # .. var = "<file>"; cfg info in <file>
-include(jtm_cfgfile("cfg_system"))              # region timezone, timezones to preload 
-include(jtm_cfgfile("cfg_user"))                # remote timezone, timezones to preload
-
-include(jtm_cfgfile("cfg_tzsys"))               # timezone management data dicts
-include(jtm_cfgfile("cfg_lcltz"))               # ascertain local timezone
-
-include(jtm_cfgfile("cfg_etc"))                 # conversion constants, other parameters
-
-# daynumber calcs
-include(jtm_dayfile("jas_daynum"))
-include(jtm_dayfile("leapyears"))
-include(jtm_dayfile("monthdays"))
-
+TM4JULIA_HOME="/home/jas/Desktop/julia/extras/tm4julia"
+export TM4JULIA_HOME
+require("tm4julia/config/JTM_dirpaths.jl")
+import JTM_dirpaths.*
+require("tm4julia/util/JTM_util.jl")
+require("tm4julia/config/JTM_config_tz.jl")
+import JTM_config_tz.*
+require("tm4julia/config/JTM_config_etc.jl")
+import JTM_config_etc.*
+require("tm4julia/days/daynum.jl")
+import daynum.*
 
 # for timezone data
 start_year = 1799
 end_year   = 2031
-#
-tz_start_daynum = ymd_to_daynum(start_year, 1, 1)
-tz_last_daynum  = ymd_to_daynum(end_year, 12, 31)
-tz_end_daynum   = tz_last_daynum + 1
-#
-tz_start_secnum = tz_start_daynum *86400
-tz_last_secnum  = tz_last_daynum *86400
-tz_end_secnum   = tz_last_secnum + 1
 
 
 const _tai_minus_utc_1972_2012_daynum = [
-    ymd_to_daynum( 1972, 1, 1 ), # 1
-    ymd_to_daynum( 1972, 7, 1 ),
-    ymd_to_daynum( 1973, 1, 1 ),
-    ymd_to_daynum( 1974, 1, 1 ),
-    ymd_to_daynum( 1975, 1, 1 ),
-    ymd_to_daynum( 1976, 1, 1 ),
-    ymd_to_daynum( 1977, 1, 1 ),
-    ymd_to_daynum( 1978, 1, 1 ),
-    ymd_to_daynum( 1979, 1, 1 ),
-    ymd_to_daynum( 1980, 1, 1 ),
-    ymd_to_daynum( 1981, 7, 1 ),
-    ymd_to_daynum( 1982, 7, 1 ),
-    ymd_to_daynum( 1983, 7, 1 ),
-    ymd_to_daynum( 1985, 7, 1 ),
-    ymd_to_daynum( 1988, 1, 1 ),
-    ymd_to_daynum( 1990, 1, 1 ),
-    ymd_to_daynum( 1991, 1, 1 ),
-    ymd_to_daynum( 1992, 7, 1 ),
-    ymd_to_daynum( 1993, 7, 1 ),
-    ymd_to_daynum( 1994, 7, 1 ),
-    ymd_to_daynum( 1996, 1, 1 ),
-    ymd_to_daynum( 1997, 7, 1 ),
-    ymd_to_daynum( 1999, 1, 1 ),
-    ymd_to_daynum( 2006, 1, 1 ),
-    ymd_to_daynum( 2009, 1, 1 ),
-    ymd_to_daynum( 2012, 7, 1 ), # 26
+    daynum( 1972, 1, 1 ), # 1
+    daynum( 1972, 7, 1 ),
+    daynum( 1973, 1, 1 ),
+    daynum( 1974, 1, 1 ),
+    daynum( 1975, 1, 1 ),
+    daynum( 1976, 1, 1 ),
+    daynum( 1977, 1, 1 ),
+    daynum( 1978, 1, 1 ),
+    daynum( 1979, 1, 1 ),
+    daynum( 1980, 1, 1 ),
+    daynum( 1981, 7, 1 ),
+    daynum( 1982, 7, 1 ),
+    daynum( 1983, 7, 1 ),
+    daynum( 1985, 7, 1 ),
+    daynum( 1988, 1, 1 ),
+    daynum( 1990, 1, 1 ),
+    daynum( 1991, 1, 1 ),
+    daynum( 1992, 7, 1 ),
+    daynum( 1993, 7, 1 ),
+    daynum( 1994, 7, 1 ),
+    daynum( 1996, 1, 1 ),
+    daynum( 1997, 7, 1 ),
+    daynum( 1999, 1, 1 ),
+    daynum( 2006, 1, 1 ),
+    daynum( 2009, 1, 1 ),
+    daynum( 2012, 7, 1 ), # 26
 ];
 
 const _tai_minus_utc_1972_2012_secnum =
@@ -131,20 +81,20 @@ const _tai_minus_utc_1972_2012_secs =
 
 const _tai_minus_utc_1961_1972_daynum =
 [
-    ymd_to_daynum( 1961,  1, 1 ), #  1
-    ymd_to_daynum( 1961,  8, 1 ),
-    ymd_to_daynum( 1962,  1, 1 ),
-    ymd_to_daynum( 1963, 10, 1 ),
-    ymd_to_daynum( 1964,  1, 1 ),
-    ymd_to_daynum( 1964,  4, 1 ),
-    ymd_to_daynum( 1964,  9, 1 ),
-    ymd_to_daynum( 1965,  1, 1 ),
-    ymd_to_daynum( 1965,  3, 1 ),
-    ymd_to_daynum( 1965,  7, 1 ),
-    ymd_to_daynum( 1965,  9, 1 ),
-    ymd_to_daynum( 1966,  1, 1 ),
-    ymd_to_daynum( 1968,  2, 1 ),
-    ymd_to_daynum( 1971, 12,31 ), # 14
+    daynum( 1961,  1, 1 ), #  1
+    daynum( 1961,  8, 1 ),
+    daynum( 1962,  1, 1 ),
+    daynum( 1963, 10, 1 ),
+    daynum( 1964,  1, 1 ),
+    daynum( 1964,  4, 1 ),
+    daynum( 1964,  9, 1 ),
+    daynum( 1965,  1, 1 ),
+    daynum( 1965,  3, 1 ),
+    daynum( 1965,  7, 1 ),
+    daynum( 1965,  9, 1 ),
+    daynum( 1966,  1, 1 ),
+    daynum( 1968,  2, 1 ),
+    daynum( 1971, 12,31 ), # 14
 ]
 
 const _tai_minus_utc_1961_1972_secs =
@@ -184,11 +134,11 @@ end
 # cume leapsecs as of daynum 0h
 #function __tai_minus_utc(daynum::Int64) # function tai_minus_utc_1961_2012(daynum::Int64)
 function cumeleapsecs(daynum::Int64)
-  if      (daynum >= ymd_to_daynum(2012, 7, 1))
+  if      (daynum >= daynum(2012, 7, 1))
       return 35
-  elseif  (daynum <  ymd_to_daynum(1961, 1, 1))
+  elseif  (daynum <  daynum(1961, 1, 1))
       return  0
-  elseif  (daynum >= ymd_to_daynum(1972, 1, 1))
+  elseif  (daynum >= daynum(1972, 1, 1))
       return _tai_minus_utc_1972_2012_secs[
                  search_gte( _tai_minus_utc_1972_2012_daynum, daynum )
                                           ]
@@ -202,11 +152,11 @@ end
 
 function cumeleapsecs_atsec(secnum::Int64)
   daynum = iround(secnum/86400)
-  if      (secnum >= ymd_to_daynum(2012, 7, 1)*86400)
+  if      (secnum >= daynum(2012, 7, 1)*86400)
       return 35
-  elseif  (secnum <  ymd_to_daynum(1961, 1, 1)*86400)
+  elseif  (secnum <  daynum(1961, 1, 1)*86400)
       return  0
-  elseif  (secnum >= ymd_to_daynum(1972, 1, 1)*86400)
+  elseif  (secnum >= daynum(1972, 1, 1)*86400)
       return _tai_minus_utc_1972_2012_secs[
                  search_gte( _tai_minus_utc_1972_2012_secnum, secnum )
                                           ]
@@ -892,10 +842,9 @@ function zdump2secs(tzname,fromyear,uptoyear)
   hcat(zutc_secs_corr,zutc2lcl,zisdst)
 end
 
-
-tzdata_dir = "$(JULIA_JTM_DIR)/tzdata"
-tm4julia_data(astr) = "$(JULIA_JTM_DIR)/tzdata/$(astr)"
-tm4julia_datapath(astr) = "$(JULIA_JTM_DIR)/tzdata/$(astr)"
+tzdata_dir = "$(TM4JULIA_HOME)/tzdata"
+tm4julia_data(astr) = "$(TM4JULIA_HOME)/tzdata/$(astr)"
+tm4julia_datapath(astr) = "$(TM4JULIA_HOME)/tzdata/$(astr)"
 
 _tznum_to_filepath = Dict{Int64,ASCIIString}(511)
 for i=0:max(keys(_tznum_to_tzname))
@@ -923,6 +872,12 @@ function _tzname_to_file_and_num(tzname)
   (basedir,basefilename,num)
 end
 
+
+# const gmtsecs_file = "$(tzdata_dir)gmtsecs.jld"
+# const gmt2lcl_file = "$(tzdata_dir)gmt2lcl.jld"
+# const isitdst_file = "$(tzdata_dir)isitdst.jld"
+# const tzabbrs_file = "$(tzdata_dir)tzabbrs.jld"
+# const tzonenum_file = "$(tzdata_dir)tzonenum.jld"
 
 if (stat(tzdata_dir).mode==0)
      a = readchomp(`mkdir $(tzdata_dir)`)
@@ -974,13 +929,6 @@ for tzname in keys(_tzname_to_tznum)
     isitdst  = int64(tzvalues[:,3]);
   end
 
-  # special cases
-  if any(tzname .== ["LCL","UT0","UT1","UTC","CTU","TAI","TDT","TDB"])
-    begin
-         gmtsecs = int64( [ _topSecNumber ] ) # any valid gte_search returns 0
-    end
-  end # end special cases
-
   tz_basic = TimezoneBasic(tznum,gmt2std,gmt2dst,tzname,stdabbr,dstabbr)
   tz_vects = TimezoneVects(gmtsecs,gmt2lcl,isitdst)
   tz_basic_file = "$(datasubdir)/$(tz_basic_fname)"
@@ -995,6 +943,42 @@ for tzname in keys(_tzname_to_tznum)
   serialize(fio,tz_vects);
   close(fio);
 
+#   gmtsecsfile = "$(filebase)gmtsecs.jld"
+#   gmt2lclfile = "$(filebase)gmt2lcl.jld"
+#   isitdstfile = "$(filebase)isitdst.jld"
+#   tzabbrsfile = "$(filebase)tzabbrs.jld"
+#   tzonenumfile = "$(filebase)tzonenum.jld"
+
+#   if (stat(gmtsecsfile).mode==0)
+#      a = readchomp(`cp -f $(gmtsecs_file) $(gmtsecsfile)`)
+#      a = readchomp(`chmod 777 $(gmtsecsfile)`)
+#   end
+#   if (stat(gmt2lclfile).mode==0)
+#      a = readchomp(`cp -f $(gmt2lcl_file) $(gmt2lclfile)`)
+#      a = readchomp(`chmod 755 $(gmt2lclfile)`)
+#   end
+#   if (stat(isitdstfile).mode==0)
+#      a = readchomp(`cp -f $(isitdst_file) $(isitdstfile)`)
+#      a = readchomp(`chmod 755 $(isitdstfile)`)
+#   end
+#   if (stat(tzabbrsfile).mode==0)
+#      a = readchomp(`cp -f $(tzabbrs_file) $(tzabbrsfile)`)
+#      a = readchomp(`chmod 755 $(tzabbrsfile)`)
+#   end
+#   if (stat(tzonenumfile).mode==0)
+#      a = readchomp(`cp -f $(tzonenum_file) $(tzonenumfile)`)
+#      a = readchomp(`chmod 755 $(gmtsecsfile)`)
+#   end
+
+# #try
+#   fio=open(gmtsecsfile,"w"); serialize(fio,gmtsecs); close(fio);
+#   fio=open(gmt2lclfile,"w"); serialize(fio,gmt2lcl); close(fio);
+#   fio=open(isitdstfile,"w"); serialize(fio,isitdst); close(fio);
+#   fio=open(tzonenumfile,"w"); serialize(fio,tznum); close(fio);
+#   fio=open(tzabbrsfile,"w"); serialize(fio,tzabbrs); close(fio);
+# #catch e
+# #  print(filebase,"\n");flush(stdout_stream);
+# #end
 end
 
 
@@ -1174,5 +1158,5 @@ end
 # end
 
 
-end # module
+
 

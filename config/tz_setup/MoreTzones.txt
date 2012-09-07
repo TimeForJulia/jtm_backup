@@ -1,0 +1,9 @@
+America/Toronto
+Asia/Dubai
+Asia/Hong_Kong
+Asia/Jerusalem
+Asia/Seoul
+Europe/Oslo
+Europe/Madrid
+Europe/Rome
+

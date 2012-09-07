@@ -5,11 +5,6 @@
 # created: 2012-Jun-18 in New York, USA
 # revised: 2012-Aug-14
 
-#import Main.jtm_cfgfile
-
-
-
-
 
 
 export my_tz_stdname_file, my_tz_preloads_file,
@@ -18,8 +13,8 @@ export my_tz_stdname_file, my_tz_preloads_file,
 
 #these are best undisturbed
 
-const my_tz_stdname_file  = jtm_cfgfile("MyTimezone.txt")
-const my_tz_preloads_file = jtm_cfgfile("StartupZones.txt")
+const my_tz_stdname_file  = jtm_cfgfile("tz/MyTimezone.txt")
+const my_tz_preloads_file = jtm_cfgfile("tz/StartupZones.txt")
 
 
 include(jtm_cfgfile("JTM_config_tz.jl"))

@@ -1,0 +1,15 @@
+America/Chicago
+America/Denver
+America/Los_Angeles
+America/Montreal
+America/New_York
+America/Toronto
+Asia/Hong_Kong
+Europe/Berlin
+Europe/Helsinki
+Europe/London
+Europe/Oslo
+Europe/Madrid
+Europe/Moscow
+Europe/Paris
+Europe/Rome

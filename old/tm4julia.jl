@@ -38,7 +38,6 @@ export TM4JULIA_HOME
 load("$(TM4JULIA_HOME)/config/JTM_dirpaths.jl");
 import JTM_dirpaths.*
 
-
 require(jtm_cfgfile("JTM_config.jl"))
 
 require(jtm_utlfile("JTM_util.jl"))
@@ -87,17 +86,29 @@ for tzname in tzs
 end
 
 
-# load other parts
+# load other parts into module JTM
 
-require(jtm_srcfile("days/JAS_daynum.jl"))
-import JAS_daynum.*
-require(jtm_srcfile("days/leapyear.jl"))
-import leapyear.*
-require(jtm_srcfile("days/daysInMonth.jl")) # uses leapyear
-import daysInMonth.*
-require(jtm_srcfile("times/cume_leapsecs.jl"))
-import cume_leapsecs.*
+module JTM
 
-require(jtm_srcfile("io/JTM_date_in.jl"))
-import JTM_date_in.*
+export JAS_daynum, leapyear, cume_leapseconds
+#ymd_to_daynum, daynum_to_ymd, _daynum
 
+import Base.*
+import Main.jtm_srcfile
+
+include(jtm_srcfile("days/JAS_daynum.jl"))
+# import JAS_daynum.*
+include(jtm_srcfile("days/leapyear.jl"))
+#import leapyear.*
+include(jtm_srcfile("days/daysInMonth.jl")) # uses leapyear
+#import daysInMonth.*
+
+include(jtm_srcfile("times/cume_leapsecs.jl"))
+#import cume_leapsecs.*
+
+include(jtm_srcfile("io/JTM_date_in.jl"))
+#import JTM_date_in.*
+
+end # module JTM
+
+#import JTM.*
